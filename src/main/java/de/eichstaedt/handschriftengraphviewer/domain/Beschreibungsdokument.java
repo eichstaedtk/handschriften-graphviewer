@@ -1,8 +1,12 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.time.LocalDateTime;
+import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.RelationshipEntity;
+import org.neo4j.ogm.annotation.StartNode;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
@@ -11,38 +15,29 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public class Beschreibungsdokument {
 
-  public Beschreibungsdokument(String id,
-      KulturObjektDokument kod, LocalDateTime beschreibungsDatum) {
+  public Beschreibungsdokument(String id, String titel, String signatur) {
     this.id = id;
-    this.kod = kod;
-    this.beschreibungsDatum = beschreibungsDatum;
+    this.titel = titel;
+    this.signatur = signatur;
   }
 
   @Id
   private String id;
 
-  private KulturObjektDokument kod;
+  private String titel;
 
-  private LocalDateTime beschreibungsDatum;
+  private String signatur;
+
 
   public String getId() {
     return id;
   }
 
-  public KulturObjektDokument getKod() {
-    return kod;
+  public String getTitel() {
+    return titel;
   }
 
-  public LocalDateTime getBeschreibungsDatum() {
-    return beschreibungsDatum;
-  }
-
-  @Override
-  public String toString() {
-    return "Beschreibungsdokument{" +
-        "id='" + id + '\'' +
-        ", kod=" + kod +
-        ", beschreibungsDatum=" + beschreibungsDatum +
-        '}';
+  public String getSignatur() {
+    return signatur;
   }
 }
