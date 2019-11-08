@@ -2,6 +2,7 @@ package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -14,11 +15,10 @@ import org.neo4j.ogm.annotation.Relationship;
 @NodeEntity
 public class KulturObjektDokument implements Serializable {
 
-  public KulturObjektDokument(String id, LocalDateTime generierungsDatum,
-      Set<Beschreibungsdokument> beschreibungen) {
+  public KulturObjektDokument(String id, LocalDateTime generierungsDatum) {
     this.id = id;
     this.generierungsDatum = generierungsDatum;
-    this.beschreibungen = beschreibungen;
+    this.beschreibungen = new HashSet<>();
   }
 
   @Id
