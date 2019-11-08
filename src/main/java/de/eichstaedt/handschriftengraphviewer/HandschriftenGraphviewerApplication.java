@@ -1,12 +1,6 @@
 package de.eichstaedt.handschriftengraphviewer;
 
-import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
-import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
-import de.eichstaedt.handschriftengraphviewer.domain.Person;
-import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
-import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
-import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.ProvenienzRepository;
-import java.util.Arrays;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.xml.XMLService;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -21,11 +15,11 @@ public class HandschriftenGraphviewerApplication {
 
 	@Autowired
 	public HandschriftenGraphviewerApplication(
-			ProvenienzRepository provenienzRepository) {
-		this.provenienzRepository = provenienzRepository;
+			XMLService xmlService) {
+		this.xmlService = xmlService;
 	}
 
-	private ProvenienzRepository provenienzRepository;
+	private XMLService xmlService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(HandschriftenGraphviewerApplication.class, args);
@@ -34,17 +28,9 @@ public class HandschriftenGraphviewerApplication {
 	@PostConstruct
 	private void createTestDataSetup() {
 
-		Beschreibungsdokument beschreibungsdokument = new Beschreibungsdokument("31275199","Humanistische Schulsammelhandschrift","S 83");
 
-		Koerperschaft bonn = new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn","Bonn");
+		xmlService.loadingXMLData();
 
-		Person anton = new Person("31275311","Anton","Heuglin");
-
-		Provenienz besitzer = new Provenienz(ProvenienzTyp.Besitzer,bonn,beschreibungsdokument,"1578","2019");
-
-		Provenienz vorbesitzer = new Provenienz(ProvenienzTyp.Vorbesitzer,anton,beschreibungsdokument,"1513/1530","1578");
-
-		provenienzRepository.saveAll(Arrays.asList(besitzer,vorbesitzer));
 
 	}
 
