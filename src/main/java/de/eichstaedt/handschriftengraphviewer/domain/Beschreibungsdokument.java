@@ -11,6 +11,13 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public class Beschreibungsdokument {
 
+  public Beschreibungsdokument(String id,
+      KulturObjektDokument kod, LocalDateTime beschreibungsDatum) {
+    this.id = id;
+    this.kod = kod;
+    this.beschreibungsDatum = beschreibungsDatum;
+  }
+
   @Id
   private String id;
 
