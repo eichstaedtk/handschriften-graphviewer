@@ -5,7 +5,7 @@ import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
-import de.eichstaedt.handschriftengraphviewer.infrastructure.ProvenienzRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.ProvenienzRepository;
 import java.util.Arrays;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;

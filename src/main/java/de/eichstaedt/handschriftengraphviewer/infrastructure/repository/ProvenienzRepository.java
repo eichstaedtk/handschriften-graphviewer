@@ -1,4 +1,4 @@
-package de.eichstaedt.handschriftengraphviewer.infrastructure;
+package de.eichstaedt.handschriftengraphviewer.infrastructure.repository;
 
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
