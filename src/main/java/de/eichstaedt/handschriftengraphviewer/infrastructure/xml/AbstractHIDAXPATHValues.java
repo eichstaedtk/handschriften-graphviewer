@@ -15,4 +15,10 @@ public class AbstractHIDAXPATHValues {
 
   public static final String BESCHREIBUNGS_BESITZER_SEIT = "//Block[@Type=\"obj\"]/Field[@Type='bezsoz' and @Value='Verwaltung']/Field[@Type='4996']/@Value";
 
+  public static final String BESCHREIBUNGS_VORBESITZER = "//Block[@Type=\"obj\"]/Field[@Type='bezsoz' or @Type='bezper' and @Value='Vorbesitz']";
+
+  public static final String BESCHREIBUNGS_VORBESITZER_ID = "//Field[@Type='z001']/@Value";
+
+  public static final String BESCHREIBUNGS_VORBESITZER_NAME = "//Field[@Type='4100']/@Value";
+
 }

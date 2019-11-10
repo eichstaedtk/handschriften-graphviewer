@@ -19,21 +19,48 @@
     }
   </style>
 </head>
-<body onload="draw()">
+<body>
 <div class="container-fluid">
   <div class="row" id="header">
-    <div class="col-12"><h1>Provenienzen der mittelalterlichen Handschriften</h1></div>
-  </div>
+    <div class="col-12"><h1>Graphendatenbank der mittelalterlichen Handschriften</h1>
+    <div><h3>Cypher query: </h3>
 
+      <textarea rows="6" cols=130 id="cypher">match (koerperschaft:Koerperschaft)-[provenienz:PROVENIENZ]->(beschreibung:Beschreibungsdokument) return koerperschaft,provenienz,beschreibung;</textarea><br>
+
+      <input class="btn btn-primary" type="submit" value="Anfrage senden" id="reload">
+      <input class="btn btn-primary" type="submit" value="Stabilisieren" id="stabilize">
+    </div>
+  </div>
+  </div>
   <div class="row">
     <div class="col-12">
       <div id="viz"></div>
     </div>
   </div>
 </div>
+<script th:src="@{/js/jquery-3.3.1.min.js}" src="../../js/jquery-3.3.1.min.js"></script>
 <script th:src="@{/js/bootstrap.bundle.min.js}" src="../../js/bootstrap.bundle.min.js"></script>
 <script src="https://rawgit.com/neo4j-contrib/neovis.js/master/dist/neovis.js"></script>
+<script>
+  $(document).ready(function() {
+    draw();
+  })
+  $("#reload").click(function() {
 
+
+    var cypher = $("#cypher").val();
+    if (cypher.length > 3) {
+      viz.renderWithCypher(cypher);
+    } else {
+      console.log("reload");
+      viz.reload();
+    }
+
+  });
+  $("#stabilize").click(function() {
+    viz.stabilize();
+  })
+</script>
 <script type="text/javascript">
 
   var viz;
@@ -60,7 +87,8 @@
           "caption": "vonJahr"
         }
       },
-      initial_cypher: "match (koerperschaft:Koerperschaft)-[r:PROVENIENZ]->(beschreibung:Beschreibungsdokument) return koerperschaft,r,beschreibung;"
+      initial_cypher: "match (koerperschaft:Koerperschaft)-[provenienz:PROVENIENZ]->(beschreibung:Beschreibungsdokument) " +
+          "return koerperschaft,provenienz,beschreibung;"
     };
 
     viz = new NeoVis.default(config);

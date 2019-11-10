@@ -1,10 +1,18 @@
 package de.eichstaedt.handschriftengraphviewer.infrastructure.xml;
 
 
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.*;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGEN;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_SEIT;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_TITEL;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_NAME;
 
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
+import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.ProvenienzRepository;
@@ -19,6 +27,8 @@ import java.io.StringWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -83,7 +93,7 @@ public class XMLService {
 
         Document beschreibungsDoc = prepareDocument(xmlBeschreibung,false);
 
-        logger.debug("XML processing for Beschreibung {} ", xmlBeschreibung);
+        logger.info("XML processing for Beschreibung {} ", i);
 
         Beschreibungsdokument beschreibungsdokument = new Beschreibungsdokument(findXMLValueByXPath(beschreibungsDoc,
             BESCHREIBUNGS_ID)
@@ -97,6 +107,25 @@ public class XMLService {
 
         provenienzen.add(besitzer);
 
+
+        NodeList vorbesitzer = findNodesByXPath(xmlDoc, BESCHREIBUNGS_VORBESITZER);
+
+        for (int v = 0 ; v < vorbesitzer.getLength();v++)
+        {
+          String xmlVorbesitzer = nodeToString(vorbesitzer.item(v));
+
+          Document vorbesitzerDoc = prepareDocument(xmlVorbesitzer,false);
+
+          Person p = new Person(findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_ID),
+              findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_NAME),
+              findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_NAME));
+
+          Provenienz vp = new Provenienz(ProvenienzTyp.Vorbesitzer,p,beschreibungsdokument,"","");
+
+          provenienzen.add(vp);
+
+        }
+
       }
 
 
@@ -104,7 +133,15 @@ public class XMLService {
       {
         provenienzRepository.deleteAll();
 
-        provenienzRepository.saveAll(provenienzen);
+        final AtomicInteger counter = new AtomicInteger();
+
+        provenienzen.stream()
+            .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
+
+            provenienzRepository.saveAll(l);
+
+            });
+
       }
 
     } catch (Exception e) {
