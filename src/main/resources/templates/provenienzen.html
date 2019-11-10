@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link type="text/css" th:href="@{/css/bootstrap.min.css}" href="../../css/bootstrap.min.css" rel="stylesheet"/>
+  <title>Provenienzen der mittelalterlichen Handschriften</title>
+
+  <style type="text/css">
+    html, body {
+      font: 16pt arial;
+    }
+    #viz {
+      width: 1500px;
+      height: 1500px;
+      border: 1px solid lightgray;
+      font: 22pt arial;
+    }
+  </style>
+</head>
+<body onload="draw()">
+<div class="container-fluid">
+  <div class="row" id="header">
+    <div class="col-12"><h1>Provenienzen der mittelalterlichen Handschriften</h1></div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div id="viz"></div>
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/bootstrap.bundle.min.js}" src="../../js/bootstrap.bundle.min.js"></script>
+<script src="https://rawgit.com/neo4j-contrib/neovis.js/master/dist/neovis.js"></script>
+
+<script type="text/javascript">
+
+  var viz;
+
+  function draw() {
+    var config = {
+      container_id: "viz",
+      server_url: "bolt://localhost:7687",
+      server_user: "neo4j",
+      server_password: "test",
+      labels: {
+        "Koerperschaft": {
+          "caption": "name",
+          "size": "pagerank",
+        },
+        "Beschreibungsdokument": {
+          "caption": "signatur",
+          "size": "pagerank",
+        }
+      },
+      relationships: {
+        "PROVENIENZ": {
+          "thickness": "weight",
+          "caption": "vonJahr"
+        }
+      },
+      initial_cypher: "match (koerperschaft:Koerperschaft)-[r:PROVENIENZ]->(beschreibung:Beschreibungsdokument) return koerperschaft,r,beschreibung;"
+    };
+
+    viz = new NeoVis.default(config);
+    viz.render();
+  }
+</script>
+</body>
+</html>
