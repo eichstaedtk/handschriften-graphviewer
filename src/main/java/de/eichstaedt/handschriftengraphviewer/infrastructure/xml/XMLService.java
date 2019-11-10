@@ -7,8 +7,12 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_TITEL;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_ID;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_NAME;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_NAME;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_ORT;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_VON_JAHR;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_PERSON_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_PERSON_NAME;
 
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
@@ -108,7 +112,7 @@ public class XMLService {
         provenienzen.add(besitzer);
 
 
-        NodeList vorbesitzer = findNodesByXPath(xmlDoc, BESCHREIBUNGS_VORBESITZER);
+        NodeList vorbesitzer = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER);
 
         for (int v = 0 ; v < vorbesitzer.getLength();v++)
         {
@@ -116,13 +120,32 @@ public class XMLService {
 
           Document vorbesitzerDoc = prepareDocument(xmlVorbesitzer,false);
 
-          Person p = new Person(findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_ID),
-              findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_NAME),
-              findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_NAME));
+          Provenienz vp = null;
 
-          Provenienz vp = new Provenienz(ProvenienzTyp.Vorbesitzer,p,beschreibungsdokument,"","");
+          if(findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_PERSON_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_PERSON_ID).isEmpty()) {
+            Person p = new Person(
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_PERSON_ID),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_PERSON_NAME),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_PERSON_NAME));
 
-          provenienzen.add(vp);
+             vp = new Provenienz(ProvenienzTyp.Vorbesitzer,p,beschreibungsdokument,"","");
+          }
+
+          if(findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID).isEmpty()) {
+            Koerperschaft k = new Koerperschaft(
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_NAME),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_ORT));
+
+             vp = new Provenienz(ProvenienzTyp.Vorbesitzer,k,beschreibungsdokument,findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_VON_JAHR),"");
+          }
+
+
+          if(vp != null)
+          {
+            provenienzen.add(vp);
+          }
+
 
         }
 
