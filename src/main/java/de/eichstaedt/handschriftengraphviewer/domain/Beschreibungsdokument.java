@@ -1,12 +1,8 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
-import java.time.LocalDateTime;
-import org.neo4j.ogm.annotation.EndNode;
+import java.util.Objects;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
@@ -39,5 +35,22 @@ public class Beschreibungsdokument {
 
   public String getSignatur() {
     return signatur;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Beschreibungsdokument that = (Beschreibungsdokument) o;
+    return id.equals(that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }

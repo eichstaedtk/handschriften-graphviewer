@@ -1,5 +1,6 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import java.util.Objects;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
@@ -60,5 +61,22 @@ public class Provenienz {
 
   public String getBisJahr() {
     return bisJahr;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Provenienz that = (Provenienz) o;
+    return id.equals(that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }

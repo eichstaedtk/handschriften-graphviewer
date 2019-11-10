@@ -60,7 +60,7 @@ public class XMLService {
 
   private ProvenienzRepository provenienzRepository;
 
-  public void loadingXMLData() {
+  public void   loadingXMLData() {
 
     logger.info("Start loading data from xml file ...");
 
@@ -83,7 +83,7 @@ public class XMLService {
 
         Document beschreibungsDoc = prepareDocument(xmlBeschreibung,false);
 
-        logger.info("XML processing for Beschreibung {} ", xmlBeschreibung);
+        logger.debug("XML processing for Beschreibung {} ", xmlBeschreibung);
 
         Beschreibungsdokument beschreibungsdokument = new Beschreibungsdokument(findXMLValueByXPath(beschreibungsDoc,
             BESCHREIBUNGS_ID)
@@ -102,6 +102,8 @@ public class XMLService {
 
       if(!provenienzen.isEmpty())
       {
+        provenienzRepository.deleteAll();
+
         provenienzRepository.saveAll(provenienzen);
       }
 
