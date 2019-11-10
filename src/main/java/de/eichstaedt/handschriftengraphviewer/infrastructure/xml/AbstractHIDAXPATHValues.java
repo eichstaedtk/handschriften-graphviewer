@@ -17,7 +17,7 @@ public class AbstractHIDAXPATHValues {
 
   public static final String BESCHREIBUNGS_VORBESITZER = "//Block[@Type=\"obj\"]/Field[@Type='bezsoz' or @Type='bezper' and @Value='Vorbesitz']";
 
-  public static final String BESCHREIBUNGS_VORBESITZER_PERSON_ID = "//Field[@Type='z001']/@Value";
+  public static final String BESCHREIBUNGS_VORBESITZER_PERSON_ID = "//Field[@Type='z001' or @Type='4000']/@Value";
 
   public static final String BESCHREIBUNGS_VORBESITZER_PERSON_NAME = "//Field[@Type='4100']/@Value";
 
