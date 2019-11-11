@@ -28,6 +28,8 @@ public class Beschreibungsdokument {
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
 
+  @Relationship(type = "EINBAND")
+  private Einband einband;
 
   public String getId() {
     return id;
@@ -47,6 +49,14 @@ public class Beschreibungsdokument {
 
   public void setBuchbinder(Beteiligte buchbinder) {
     this.buchbinder = buchbinder;
+  }
+
+  public Einband getEinband() {
+    return einband;
+  }
+
+  public void setEinband(Einband einband) {
+    this.einband = einband;
   }
 
   @Override

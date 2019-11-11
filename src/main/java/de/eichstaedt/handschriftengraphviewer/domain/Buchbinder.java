@@ -5,25 +5,18 @@ package de.eichstaedt.handschriftengraphviewer.domain;
  */
 public class Buchbinder extends Beteiligte {
 
-  public Buchbinder(String id,String name,String ort,Einband einband) {
+  public Buchbinder(String id,String name,String ort) {
     this.id = id;
     this.name = name;
     this.ort = ort;
-    this.einband = einband;
   }
 
   private String name;
 
   private String ort;
 
-  private Einband einband;
-
   public String getName() {
     return name;
-  }
-
-  public Einband getEinband() {
-    return einband;
   }
 
   public String getOrt() {

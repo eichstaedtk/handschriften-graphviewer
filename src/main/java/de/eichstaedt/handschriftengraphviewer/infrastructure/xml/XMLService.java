@@ -4,6 +4,10 @@ package de.eichstaedt.handschriftengraphviewer.infrastructure.xml;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGEN;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_SEIT;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND_BESCHREIBUNG;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND_JAHR;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND_MATERIAL_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_ID;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
@@ -18,6 +22,7 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
 import de.eichstaedt.handschriftengraphviewer.domain.Buchbinder;
+import de.eichstaedt.handschriftengraphviewer.domain.Einband;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
@@ -175,6 +180,7 @@ public class XMLService {
 
 
         Node buchbinder = findNodeByXPath(beschreibungsDoc, BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG);
+        Node einband = findNodeByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND);
 
         if(buchbinder != null)
         {
@@ -188,12 +194,20 @@ public class XMLService {
           Buchbinder k = new Buchbinder(
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME),
-              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT),null);
+              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT));
 
 
             beschreibungsdokument.setBuchbinder(k);
         }
 
+        }
+
+
+        if(einband!= null)
+        {
+          Einband e = new Einband(findXMLValueByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND_BESCHREIBUNG),
+              findXMLValueByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND_JAHR),findXMLValueByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND_MATERIAL_NAME));
+          beschreibungsdokument.setEinband(e);
         }
 
       }

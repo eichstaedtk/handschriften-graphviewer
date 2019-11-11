@@ -33,4 +33,13 @@ public class AbstractHIDAXPATHValues {
 
   public static final String BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG = "//Block[@Type=\"t2\"]/Field[@Type='bezsoz' and @Value='Herstellung']";
 
+  public static final String BESCHREIBUNGS_EINBAND = "//Block[@Type=\"t2\"]/Field[@Type='5230' and @Value='Einband']";
+
+  public static final String BESCHREIBUNGS_EINBAND_BESCHREIBUNG = "//Block[@Type=\"t2\"]/Field[@Type='5240']/@Value";
+
+  public static final String BESCHREIBUNGS_EINBAND_JAHR = "//Block[@Type=\"t2\"]/Field[@Type='5060' and @Value='Materialbefund']/Field[@Type='5064']/@Value";
+
+  public static final String BESCHREIBUNGS_EINBAND_MATERIAL_NAME = "//Block[@Type=\"t2\"]/Field[@Type='5260']/@Value";
+
+
 }
