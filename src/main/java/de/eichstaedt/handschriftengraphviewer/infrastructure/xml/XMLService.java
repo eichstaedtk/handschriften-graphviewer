@@ -3,18 +3,21 @@ package de.eichstaedt.handschriftengraphviewer.infrastructure.xml;
 
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGEN;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_SEIT;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_TITEL;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_NAME;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_ORT;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_VON_JAHR;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_PERSON_ID;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_PERSON_NAME;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOEPERSCHAFTS_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_NAME;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_ORT;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PERSON_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PERSON_NAME;
 
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
+import de.eichstaedt.handschriftengraphviewer.domain.Buchbinder;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
@@ -122,22 +125,25 @@ public class XMLService {
 
           Provenienz vp = null;
 
-          if(findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_PERSON_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_PERSON_ID).isEmpty()) {
+          if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
+              BESCHREIBUNGS_PERSON_ID).isEmpty()) {
             Person p = new Person(
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_PERSON_ID),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_PERSON_NAME),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_PERSON_NAME));
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME));
 
              vp = new Provenienz(ProvenienzTyp.Vorbesitzer,p,beschreibungsdokument,"","");
           }
 
-          if(findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID).isEmpty()) {
+          if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
+              BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
             Koerperschaft k = new Koerperschaft(
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_NAME),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_ORT));
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT));
 
-             vp = new Provenienz(ProvenienzTyp.Vorbesitzer,k,beschreibungsdokument,findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_VON_JAHR),"");
+             vp = new Provenienz(ProvenienzTyp.Vorbesitzer,k,beschreibungsdokument,findXMLValueByXPath(vorbesitzerDoc,
+                 BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"");
           }
 
 
@@ -146,6 +152,47 @@ public class XMLService {
             provenienzen.add(vp);
           }
 
+        }
+
+        NodeList herstellung = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG);
+
+        for (int h = 0 ; h < herstellung.getLength();h++)
+        {
+          String xmlHerstellung = nodeToString(herstellung.item(h));
+
+          Document herstellungDoc = prepareDocument(xmlHerstellung,false);
+
+          if(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID) != null && !findXMLValueByXPath(herstellungDoc,
+              BESCHREIBUNGS_PERSON_ID).isEmpty()) {
+            Person p = new Person(
+                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID),
+                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME),
+                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME));
+
+            provenienzen.add(new Provenienz(ProvenienzTyp.Hersteller,p,beschreibungsdokument,"",""));
+          }
+        }
+
+
+        Node buchbinder = findNodeByXPath(beschreibungsDoc, BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG);
+
+        if(buchbinder != null)
+        {
+          String xmlbuchbinder = nodeToString(buchbinder);
+
+          Document buchbinderDoc = prepareDocument(xmlbuchbinder,false);
+
+
+          if(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(buchbinderDoc,
+              BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
+          Buchbinder k = new Buchbinder(
+              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
+              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME),
+              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT),null);
+
+
+            beschreibungsdokument.setBuchbinder(k);
+        }
 
         }
 

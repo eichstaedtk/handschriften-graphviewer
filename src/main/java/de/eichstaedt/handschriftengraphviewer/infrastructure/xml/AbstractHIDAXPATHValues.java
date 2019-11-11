@@ -17,16 +17,20 @@ public class AbstractHIDAXPATHValues {
 
   public static final String BESCHREIBUNGS_VORBESITZER = "//Block[@Type=\"obj\"]/Field[@Type='bezsoz' or @Type='bezper' and @Value='Vorbesitz']";
 
-  public static final String BESCHREIBUNGS_VORBESITZER_PERSON_ID = "//Field[@Type='z001' or @Type='4000']/@Value";
+  public static final String BESCHREIBUNGS_PERSON_ID = "//Field[@Type='z001' or @Type='4000']/@Value";
 
-  public static final String BESCHREIBUNGS_VORBESITZER_PERSON_NAME = "//Field[@Type='4100']/@Value";
+  public static final String BESCHREIBUNGS_PERSON_NAME = "//Field[@Type='4100']/@Value";
 
-  public static final String BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFTS_ID = "//Field[@Type='4500']/@Value";
+  public static final String BESCHREIBUNGS_KOEPERSCHAFTS_ID = "//Field[@Type='4500']/@Value";
 
-  public static final String BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_NAME = "//Field[@Type='4600']/@Value";
+  public static final String BESCHREIBUNGS_KOERPERSCHAFTS_NAME = "//Field[@Type='4600']/@Value";
 
-  public static final String BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_VON_JAHR = "//Field[@Type='4996']/@Value";
+  public static final String BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR = "//Field[@Type='4996']/@Value";
 
-  public static final String BESCHREIBUNGS_VORBESITZER_KOERPERSCHAFTS_ORT = "//Field[@Type='4564']/@Value";
+  public static final String BESCHREIBUNGS_KOERPERSCHAFTS_ORT = "//Field[@Type='4564']/@Value";
+
+  public static final String BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG = "//Block[@Type=\"obj\"]/Field[@Type='bezper' and @Value='Herstellung']";
+
+  public static final String BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG = "//Block[@Type=\"t2\"]/Field[@Type='bezsoz' and @Value='Herstellung']";
 
 }

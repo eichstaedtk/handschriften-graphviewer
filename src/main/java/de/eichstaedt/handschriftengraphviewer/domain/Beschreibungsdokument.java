@@ -3,6 +3,7 @@ package de.eichstaedt.handschriftengraphviewer.domain;
 import java.util.Objects;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
@@ -24,6 +25,9 @@ public class Beschreibungsdokument {
 
   private String signatur;
 
+  @Relationship(type = "BUCHBINDER")
+  private Beteiligte buchbinder;
+
 
   public String getId() {
     return id;
@@ -35,6 +39,14 @@ public class Beschreibungsdokument {
 
   public String getSignatur() {
     return signatur;
+  }
+
+  public Beteiligte getBuchbinder() {
+    return buchbinder;
+  }
+
+  public void setBuchbinder(Beteiligte buchbinder) {
+    this.buchbinder = buchbinder;
   }
 
   @Override
