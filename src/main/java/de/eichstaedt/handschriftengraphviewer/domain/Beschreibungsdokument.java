@@ -1,6 +1,8 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -16,6 +18,7 @@ public class Beschreibungsdokument {
     this.id = id;
     this.titel = titel;
     this.signatur = signatur;
+    this.bestandteile = new HashSet<>();
   }
 
   @Id
@@ -28,8 +31,8 @@ public class Beschreibungsdokument {
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
 
-  @Relationship(type = "EINBAND")
-  private Einband einband;
+  @Relationship(type = "BESTEHT_AUS")
+  private Set<DokumentElement> bestandteile;
 
   public String getId() {
     return id;
@@ -51,12 +54,13 @@ public class Beschreibungsdokument {
     this.buchbinder = buchbinder;
   }
 
-  public Einband getEinband() {
-    return einband;
+  public Set<DokumentElement> getBestandteile() {
+    return bestandteile;
   }
 
-  public void setEinband(Einband einband) {
-    this.einband = einband;
+  public void setBestandteile(
+      Set<DokumentElement> bestandteile) {
+    this.bestandteile = bestandteile;
   }
 
   @Override

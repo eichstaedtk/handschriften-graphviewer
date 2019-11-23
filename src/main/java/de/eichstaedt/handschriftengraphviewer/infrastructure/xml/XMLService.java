@@ -3,26 +3,26 @@ package de.eichstaedt.handschriftengraphviewer.infrastructure.xml;
 
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGEN;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_SEIT;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND_BESCHREIBUNG;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND_JAHR;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_EINBAND_MATERIAL_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_ID;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_TITEL;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOEPERSCHAFTS_ID;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_ORT;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PERSON_ID;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PERSON_NAME;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_TITEL;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER;
 
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
 import de.eichstaedt.handschriftengraphviewer.domain.Buchbinder;
-import de.eichstaedt.handschriftengraphviewer.domain.Einband;
+import de.eichstaedt.handschriftengraphviewer.domain.DokumentElement;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
@@ -108,7 +108,7 @@ public class XMLService {
         logger.info("XML processing for Beschreibung {} ", i);
 
         Beschreibungsdokument beschreibungsdokument = new Beschreibungsdokument(findXMLValueByXPath(beschreibungsDoc,
-            BESCHREIBUNGS_ID)
+            BESCHREIBUNGS_ID).replaceAll("[^\\d.]", "")
             ,findXMLValueByXPath(beschreibungsDoc,BESCHREIBUNGS_TITEL)
             ,findXMLValueByXPath(beschreibungsDoc,
             BESCHREIBUNGS_SIGNATURE));
@@ -180,7 +180,6 @@ public class XMLService {
 
 
         Node buchbinder = findNodeByXPath(beschreibungsDoc, BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG);
-        Node einband = findNodeByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND);
 
         if(buchbinder != null)
         {
@@ -202,36 +201,51 @@ public class XMLService {
 
         }
 
+        NodeList bestandteile = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_BESTANDTEILE);
 
-        if(einband!= null)
+        logger.info("Add DokumentenElement {} ", bestandteile.getLength());
+
+        for(int b = 0; b < bestandteile.getLength(); b++)
         {
-          Einband e = new Einband(findXMLValueByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND_BESCHREIBUNG),
-              findXMLValueByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND_JAHR),findXMLValueByXPath(beschreibungsDoc, BESCHREIBUNGS_EINBAND_MATERIAL_NAME));
-          beschreibungsdokument.setEinband(e);
+
+          String xmlBestandteil = nodeToString(bestandteile.item(b));
+
+          Document bestandteilDoc = prepareDocument(xmlBestandteil,false);
+
+          DokumentElement element = new DokumentElement(findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_ID),findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_NAME),
+              findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG));
+
+          beschreibungsdokument.getBestandteile().add(element);
+
+          logger.debug("Add DokumentenElement {} ", element);
         }
 
-      }
-
-
-      if(!provenienzen.isEmpty())
-      {
-        provenienzRepository.deleteAll();
-
-        final AtomicInteger counter = new AtomicInteger();
-
-        provenienzen.stream()
-            .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
-
-            provenienzRepository.saveAll(l);
-
-            });
 
       }
+
+      saveAll(provenienzen);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
 
+  }
+
+  private void saveAll(List<Provenienz> provenienzen) {
+    if(!provenienzen.isEmpty())
+    {
+      provenienzRepository.deleteAll();
+
+      final AtomicInteger counter = new AtomicInteger();
+
+      provenienzen.stream()
+          .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
+
+          provenienzRepository.saveAll(l);
+
+          });
+
+    }
   }
 
   public static Document prepareDocument(File content, boolean namespaceAware)
