@@ -12,6 +12,7 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_LEVEL2;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_LEVEL3;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_LEVEL3_ONLY;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL2;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG;
@@ -232,9 +233,9 @@ public class XMLService {
           DokumentElement element = new DokumentElement(findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL2),findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL2),
               findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2));
 
-          addDigitalisate(bestandteilDoc, element);
+          addDigitalisate(bestandteilDoc, element,BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
 
-          addAutorenschaften(bestandteilDoc,element);
+          addAutorenschaften(bestandteilDoc,element,BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
 
           NodeList childsT3 = findNodesByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL3);
 
@@ -264,19 +265,25 @@ public class XMLService {
 
       Document child3Doc = prepareDocument(xmlChild3,false);
 
-      DokumentElement child3 = new DokumentElement(findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3),findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3),
-          findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3));
+      if(findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3) != null && !findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3).isEmpty()) {
 
-      addDigitalisate(child3Doc, child3);
+        DokumentElement child3 = new DokumentElement(
+            findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3),
+            findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3),
+            findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3));
 
-      addAutorenschaften(child3Doc,element);
+        addDigitalisate(child3Doc, child3, BESCHREIBUNGS_BESTANDTEILE_LEVEL3_ONLY);
 
-      element.getBestandteile().add(child3);
+        addAutorenschaften(child3Doc, child3, BESCHREIBUNGS_BESTANDTEILE_LEVEL3_ONLY);
+
+        element.getBestandteile().add(child3);
+      }
     }
   }
 
-  private void addDigitalisate(Document doc, DokumentElement element) throws Exception {
-    NodeList digitalisate = findNodesByXPath(doc, DIGITALISATE);
+  private void addDigitalisate(Document doc, DokumentElement element, String xpathLevel) throws Exception {
+
+    NodeList digitalisate = findNodesByXPath(doc, xpathLevel+DIGITALISATE);
 
     for(int d = 0; d < digitalisate.getLength();d++)
     {
@@ -291,8 +298,9 @@ public class XMLService {
     }
   }
 
-  private void addAutorenschaften(Document doc, DokumentElement element) throws Exception {
-    NodeList autoren = findNodesByXPath(doc, AUTORENSCHAFTEN);
+  private void addAutorenschaften(Document doc, DokumentElement element, String xpathLevel) throws Exception {
+
+    NodeList autoren = findNodesByXPath(doc, xpathLevel+AUTORENSCHAFTEN);
 
     for(int d = 0; d < autoren.getLength();d++)
     {
@@ -300,9 +308,12 @@ public class XMLService {
 
       Document autorenDoc = prepareDocument(xmlAutoren,false);
 
-      Autor autor = new Autor(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]",""));
+      if(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID) != null && !findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID).isEmpty()) {
+        Autor autor = new Autor(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),
+            findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]", ""));
 
-      element.getAutoren().add(autor);
+        element.getAutoren().add(autor);
+      }
 
     }
   }

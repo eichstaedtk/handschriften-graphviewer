@@ -43,21 +43,23 @@ public class AbstractHIDAXPATHValues {
 
   public static final String BESCHREIBUNGS_BESTANDTEILE_LEVEL3 = "//Block[@Type=\"t2\"]/Block[@Type=\"t3\"]";
 
+  public static final String BESCHREIBUNGS_BESTANDTEILE_LEVEL3_ONLY = "//Block[@Type=\"t3\"]";
+
   public static final String BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='5230']/@Value";
 
   public static final String BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='5002']/@Value";
 
-  public static final String BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='par08']/@Value";
+  public static final String BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='par08' or @Type='par11']/@Value";
 
-  public static final String DIGITALISATE = "//Field[@Type='8450' and @Value='digitale Reproduktion']";
+  public static final String DIGITALISATE = "/Field[@Type='8450' and @Value='digitale Reproduktion']";
 
-  public static final String DIGITALISAT_NAME = "//Field[@Type='8450' and @Value='digitale Reproduktion']/Field[@Type='8540']/@Value";
+  public static final String DIGITALISAT_NAME = "/Field[@Type='8450' and @Value='digitale Reproduktion']/Field[@Type='8540']/@Value";
 
-  public static final String AUTORENSCHAFTEN = "//Field[@Type='bezper' and @Value='Autorschaft']";
+  public static final String AUTORENSCHAFTEN = "/Field[@Type='bezper' and @Value='Autorschaft']";
 
-  public static final String AUTORENSCHAFTEN_NAME = "//Field[@Type='4100']/@Value";
+  public static final String AUTORENSCHAFTEN_NAME = "/Field[@Type='bezper' and @Value='Autorschaft']/Field[@Type='4100']/@Value";
 
-  public static final String AUTORENSCHAFTEN_ID = "//Field[@Type='z001']/@Value";
+  public static final String AUTORENSCHAFTEN_ID = "/Field[@Type='bezper' and @Value='Autorschaft']/Field[@Type='z001' or @Type='4000']/@Value";
 
   public static final String BESCHREIBUNGS_EINBAND = "//Block[@Type=\"t2\"]/Field[@Type='5230' and @Value='Einband']";
 
