@@ -34,6 +34,7 @@ import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.BeschreibungsdokumentRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.ProvenienzRepository;
 import java.io.File;
 import java.io.FileInputStream;
@@ -80,13 +81,18 @@ import org.xml.sax.SAXException;
 @Service
 public class XMLService {
 
+
   @Autowired
   public XMLService(
+      BeschreibungsdokumentRepository beschreibungsdokumentRepository,
       ProvenienzRepository provenienzRepository) {
+    this.beschreibungsdokumentRepository = beschreibungsdokumentRepository;
     this.provenienzRepository = provenienzRepository;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(XMLService.class);
+
+  private BeschreibungsdokumentRepository beschreibungsdokumentRepository;
 
   private ProvenienzRepository provenienzRepository;
 
@@ -103,8 +109,9 @@ public class XMLService {
 
       Koerperschaft bonn = new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn","Bonn");
 
-      List<Provenienz> provenienzen = new ArrayList<>();
+      List<Beschreibungsdokument> beschreibungsdokumente = new ArrayList<>();
 
+      List<Provenienz> provenienzen = new ArrayList<>();
 
       for (int i = 0 ; i < beschreibungen.getLength();i++)
       {
@@ -121,9 +128,9 @@ public class XMLService {
             ,findXMLValueByXPath(beschreibungsDoc,
             BESCHREIBUNGS_SIGNATURE));
 
-        Provenienz besitzer = new Provenienz(ProvenienzTyp.Besitzer,bonn,beschreibungsdokument,findXMLValueByXPath(beschreibungsDoc,
+        Provenienz besitzer = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Besitzer,bonn,findXMLValueByXPath(beschreibungsDoc,
             BESCHREIBUNGS_BESITZER_SEIT),
-            String.valueOf(LocalDate.now().getYear()));
+            String.valueOf(LocalDate.now().getYear()),beschreibungsdokument);
 
         provenienzen.add(besitzer);
 
@@ -145,7 +152,7 @@ public class XMLService {
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME),
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME));
 
-             vp = new Provenienz(ProvenienzTyp.Vorbesitzer,p,beschreibungsdokument,"","");
+             vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,p,"","",beschreibungsdokument);
           }
 
           if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
@@ -155,8 +162,8 @@ public class XMLService {
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME),
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT));
 
-             vp = new Provenienz(ProvenienzTyp.Vorbesitzer,k,beschreibungsdokument,findXMLValueByXPath(vorbesitzerDoc,
-                 BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"");
+             vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,k,findXMLValueByXPath(vorbesitzerDoc,
+                 BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"",beschreibungsdokument);
           }
 
 
@@ -182,7 +189,7 @@ public class XMLService {
                 findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME),
                 findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME));
 
-            provenienzen.add(new Provenienz(ProvenienzTyp.Hersteller,p,beschreibungsdokument,"",""));
+            provenienzen.add(new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Hersteller,p,"","",beschreibungsdokument));
           }
         }
 
@@ -223,19 +230,7 @@ public class XMLService {
           DokumentElement element = new DokumentElement(findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL2),findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL2),
               findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2));
 
-          NodeList digitalisate = findNodesByXPath(bestandteilDoc, DIGITALISATE);
-
-          for(int d = 0; d < digitalisate.getLength();d++)
-          {
-            String xmlDigitalisat = nodeToString(digitalisate.item(d));
-
-            Document digitalisatDoc = prepareDocument(xmlDigitalisat,false);
-
-            Digitalisat digitalisat = new Digitalisat(UUID.randomUUID().toString(),findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME),"http://bilder.manuscripta-mediaevalia.de/thumbnail/"+findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME));
-
-            element.getDigitalisate().add(digitalisat);
-          }
-
+          addDigitalisate(bestandteilDoc, element);
 
           NodeList childsT3 = findNodesByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL3);
 
@@ -248,6 +243,8 @@ public class XMLService {
             DokumentElement child3 = new DokumentElement(findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3),findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3),
                 findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3));
 
+            addDigitalisate(child3Doc, child3);
+
             element.getBestandteile().add(child3);
           }
 
@@ -256,10 +253,11 @@ public class XMLService {
           logger.info("Add DokumentenElement {} ", element);
         }
 
+        beschreibungsdokumente.add(beschreibungsdokument);
 
       }
 
-      saveAll(provenienzen);
+      saveAll(beschreibungsdokumente, provenienzen);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -267,19 +265,44 @@ public class XMLService {
 
   }
 
-  private void saveAll(List<Provenienz> provenienzen) {
-    if(!provenienzen.isEmpty())
+  private void addDigitalisate(Document bestandteilDoc, DokumentElement element) throws Exception {
+    NodeList digitalisate = findNodesByXPath(bestandteilDoc, DIGITALISATE);
+
+    for(int d = 0; d < digitalisate.getLength();d++)
     {
+      String xmlDigitalisat = nodeToString(digitalisate.item(d));
+
+      Document digitalisatDoc = prepareDocument(xmlDigitalisat,false);
+
+      Digitalisat digitalisat = new Digitalisat(
+          UUID.randomUUID().toString(),findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME),"http://bilder.manuscripta-mediaevalia.de/thumbnail/"+findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME));
+
+      element.getDigitalisate().add(digitalisat);
+    }
+  }
+
+  private void saveAll(List<Beschreibungsdokument> beschreibungsdokumente, List<Provenienz> provenienzen) {
+    if(!beschreibungsdokumente.isEmpty())
+    {
+      beschreibungsdokumentRepository.deleteAll();
       provenienzRepository.deleteAll();
 
       final AtomicInteger counter = new AtomicInteger();
 
+      beschreibungsdokumente.stream()
+          .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
+
+          beschreibungsdokumentRepository.saveAll(l);
+
+          });
+
       provenienzen.stream()
           .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
 
-          provenienzRepository.saveAll(l);
+        provenienzRepository.saveAll(l);
 
-          });
+      });
+
 
     }
   }

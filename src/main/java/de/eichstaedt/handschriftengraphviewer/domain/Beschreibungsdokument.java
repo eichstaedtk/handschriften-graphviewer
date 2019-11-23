@@ -58,6 +58,7 @@ public class Beschreibungsdokument {
     return bestandteile;
   }
 
+
   public void setBestandteile(
       Set<DokumentElement> bestandteile) {
     this.bestandteile = bestandteile;

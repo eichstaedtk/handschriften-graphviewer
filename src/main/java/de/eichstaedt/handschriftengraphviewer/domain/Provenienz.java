@@ -2,7 +2,6 @@ package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.util.Objects;
 import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.RelationshipEntity;
 import org.neo4j.ogm.annotation.StartNode;
@@ -10,36 +9,35 @@ import org.neo4j.ogm.annotation.StartNode;
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
  */
-
-@RelationshipEntity(type = "PROVENIENZ")
+@RelationshipEntity()
 public class Provenienz {
 
-  public Provenienz(ProvenienzTyp typ,
-      Beteiligte beteiligte, Beschreibungsdokument beschreibungsdokument, String vonJahr, String bisJahr) {
+  public Provenienz(String id,ProvenienzTyp typ,
+      Beteiligte beteiligte, String vonJahr, String bisJahr, Beschreibungsdokument beschreibungsdokument) {
+    this.id = id;
     this.typ = typ;
     this.beteiligte = beteiligte;
-    this.beschreibungsdokument = beschreibungsdokument;
     this.vonJahr = vonJahr;
     this.bisJahr = bisJahr;
+    this.beschreibungsdokument = beschreibungsdokument;
   }
 
   @Id
-  @GeneratedValue
-  private Long id;
+  private String id;
 
   private ProvenienzTyp typ;
 
-  @StartNode
-  private Beteiligte beteiligte;
-
   @EndNode
-  private Beschreibungsdokument beschreibungsdokument;
+  private Beteiligte beteiligte;
 
   private String vonJahr;
 
   private String bisJahr;
 
-  public Long getId() {
+  @StartNode
+  private Beschreibungsdokument beschreibungsdokument;
+
+  public String getId() {
     return id;
   }
 
@@ -49,10 +47,6 @@ public class Provenienz {
 
   public Beteiligte getBeteiligte() {
     return beteiligte;
-  }
-
-  public Beschreibungsdokument getBeschreibungsdokument() {
-    return beschreibungsdokument;
   }
 
   public String getVonJahr() {
@@ -78,5 +72,16 @@ public class Provenienz {
   @Override
   public int hashCode() {
     return Objects.hash(id);
+  }
+
+  @Override
+  public String toString() {
+    return "Provenienz{" +
+        "id=" + id +
+        ", typ=" + typ +
+        ", beteiligte=" + beteiligte +
+        ", vonJahr='" + vonJahr + '\'' +
+        ", bisJahr='" + bisJahr + '\'' +
+        '}';
   }
 }
