@@ -49,6 +49,10 @@ public class AbstractHIDAXPATHValues {
 
   public static final String BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='par08']/@Value";
 
+  public static final String DIGITALISATE = "//Field[@Type='8450' and @Value='digitale Reproduktion']";
+
+  public static final String DIGITALISAT_NAME = "//Field[@Type='8450' and @Value='digitale Reproduktion']/Field[@Type='8540']/@Value";
+
   public static final String BESCHREIBUNGS_EINBAND = "//Block[@Type=\"t2\"]/Field[@Type='5230' and @Value='Einband']";
 
   public static final String BESCHREIBUNGS_EINBAND_BESCHREIBUNG = "//Block[@Type=\"t2\"]/Field[@Type='5240']/@Value";

@@ -23,9 +23,12 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_TITEL;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISATE;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISAT_NAME;
 
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
 import de.eichstaedt.handschriftengraphviewer.domain.Buchbinder;
+import de.eichstaedt.handschriftengraphviewer.domain.Digitalisat;
 import de.eichstaedt.handschriftengraphviewer.domain.DokumentElement;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
@@ -43,6 +46,7 @@ import java.io.StringWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -219,7 +223,19 @@ public class XMLService {
           DokumentElement element = new DokumentElement(findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL2),findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL2),
               findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2));
 
-          beschreibungsdokument.getBestandteile().add(element);
+          NodeList digitalisate = findNodesByXPath(bestandteilDoc, DIGITALISATE);
+
+          for(int d = 0; d < digitalisate.getLength();d++)
+          {
+            String xmlDigitalisat = nodeToString(digitalisate.item(d));
+
+            Document digitalisatDoc = prepareDocument(xmlDigitalisat,false);
+
+            Digitalisat digitalisat = new Digitalisat(UUID.randomUUID().toString(),findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME),"http://bilder.manuscripta-mediaevalia.de/thumbnail/"+findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME));
+
+            element.getDigitalisate().add(digitalisat);
+          }
+
 
           NodeList childsT3 = findNodesByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL3);
 
@@ -234,6 +250,8 @@ public class XMLService {
 
             element.getBestandteile().add(child3);
           }
+
+          beschreibungsdokument.getBestandteile().add(element);
 
           logger.info("Add DokumentenElement {} ", element);
         }
