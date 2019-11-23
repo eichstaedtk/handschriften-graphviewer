@@ -19,6 +19,7 @@ public class Beschreibungsdokument {
     this.titel = titel;
     this.signatur = signatur;
     this.bestandteile = new HashSet<>();
+    this.orte = new HashSet<>();
   }
 
   @Id
@@ -28,10 +29,12 @@ public class Beschreibungsdokument {
 
   private String signatur;
 
+  private Set<Ort> orte;
+
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
 
-  @Relationship(type = "BESTEHT_AUS")
+  @Relationship(type = "ENTHAELT")
   private Set<DokumentElement> bestandteile;
 
   public String getId() {
@@ -58,6 +61,9 @@ public class Beschreibungsdokument {
     return bestandteile;
   }
 
+  public Set<Ort> getOrte() {
+    return orte;
+  }
 
   public void setBestandteile(
       Set<DokumentElement> bestandteile) {
@@ -81,3 +87,4 @@ public class Beschreibungsdokument {
     return Objects.hash(id);
   }
 }
+

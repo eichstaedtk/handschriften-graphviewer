@@ -1,10 +1,13 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
 import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-11.
  */
+
+@NodeEntity
 public class Einband {
 
   public Einband(String beschreibung, String befundJahr, String material) {

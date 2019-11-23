@@ -21,12 +21,14 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_ORT;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_ORTE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PERSON_ID;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PERSON_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_SIGNATURE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_TITEL;
-import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFT;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_VORBESITZER_PERSON;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISATE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISAT_NAME;
 
@@ -36,6 +38,7 @@ import de.eichstaedt.handschriftengraphviewer.domain.Buchbinder;
 import de.eichstaedt.handschriftengraphviewer.domain.Digitalisat;
 import de.eichstaedt.handschriftengraphviewer.domain.DokumentElement;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
+import de.eichstaedt.handschriftengraphviewer.domain.Ort;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
@@ -112,7 +115,7 @@ public class XMLService {
 
       NodeList beschreibungen = findNodesByXPath(xmlDoc, BESCHREIBUNGEN);
 
-      Koerperschaft bonn = new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn","Bonn");
+      Koerperschaft bonn = new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn",new Ort("Bonn"));
 
       List<Beschreibungsdokument> beschreibungsdokumente = new ArrayList<>();
 
@@ -140,31 +143,22 @@ public class XMLService {
         provenienzen.add(besitzer);
 
 
-        NodeList vorbesitzer = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER);
+        NodeList vorbesitzerKoerperschaft = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFT);
 
-        for (int v = 0 ; v < vorbesitzer.getLength();v++)
+        for (int v = 0 ; v < vorbesitzerKoerperschaft.getLength();v++)
         {
-          String xmlVorbesitzer = nodeToString(vorbesitzer.item(v));
+          String xmlVorbesitzer = nodeToString(vorbesitzerKoerperschaft.item(v));
 
           Document vorbesitzerDoc = prepareDocument(xmlVorbesitzer,false);
 
           Provenienz vp = null;
-
-          if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
-              BESCHREIBUNGS_PERSON_ID).isEmpty()) {
-            Person p = new Person(
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]",""));
-
-             vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,p,"","",beschreibungsdokument);
-          }
 
           if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
               BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
             Koerperschaft k = new Koerperschaft(
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT));
+                new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)));
 
              vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,k,findXMLValueByXPath(vorbesitzerDoc,
                  BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"",beschreibungsdokument);
@@ -177,6 +171,36 @@ public class XMLService {
           }
 
         }
+
+        NodeList vorbesitzerPerson = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER_PERSON);
+
+        for (int v = 0 ; v < vorbesitzerPerson.getLength();v++) {
+          String xmlPerson = nodeToString(vorbesitzerPerson.item(v));
+
+          Document vorbesitzerDoc = prepareDocument(xmlPerson, false);
+
+          Provenienz vp = null;
+
+          if (findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID) != null
+              && !findXMLValueByXPath(vorbesitzerDoc,
+              BESCHREIBUNGS_PERSON_ID).isEmpty()) {
+            Person p = new Person(
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
+                    .replaceAll("[<>]", ""));
+
+            vp = new Provenienz(UUID.randomUUID().toString(), ProvenienzTyp.Vorbesitzer, p, findXMLValueByXPath(vorbesitzerDoc,
+                BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR), "",
+                beschreibungsdokument);
+          }
+
+          if(vp != null)
+          {
+            provenienzen.add(vp);
+          }
+
+        }
+
 
         NodeList herstellung = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG);
 
@@ -211,7 +235,7 @@ public class XMLService {
           Buchbinder k = new Buchbinder(
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT));
+              new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)));
 
 
             beschreibungsdokument.setBuchbinder(k);
@@ -245,6 +269,18 @@ public class XMLService {
 
           logger.info("Add DokumentenElement {} ", element);
         }
+
+
+        NodeList orte = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_ORTE);
+
+        for(int o =0;o < orte.getLength();o++)
+        {
+
+          Node oNode = orte.item(o);
+
+          beschreibungsdokument.getOrte().add(new Ort(oNode.getAttributes().getNamedItem("Value").getTextContent()));
+        }
+
 
         beschreibungsdokumente.add(beschreibungsdokument);
 

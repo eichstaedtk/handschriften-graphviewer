@@ -4,12 +4,14 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-23.
  */
 
+@NodeEntity
 public class DokumentElement {
 
   @Id
@@ -19,7 +21,7 @@ public class DokumentElement {
 
   private String beschreibungsText;
 
-  @Relationship(type = "BESTEHT_AUS")
+  @Relationship(type = "ENTHAELT")
   private Set<DokumentElement> bestandteile;
 
   @Relationship(type = "DIGITAL")
