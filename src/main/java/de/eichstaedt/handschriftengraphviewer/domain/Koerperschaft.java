@@ -15,13 +15,7 @@ public class Koerperschaft extends Beteiligte {
     Ort = ort;
   }
 
-  private String name;
-
   private String Ort;
-
-  public String getName() {
-    return name;
-  }
 
   public String getOrt() {
     return Ort;

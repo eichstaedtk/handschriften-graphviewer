@@ -15,6 +15,8 @@ public abstract class Beteiligte {
 
   String bemerkung;
 
+  String name;
+
   public String getId() {
     return id;
   }
@@ -25,6 +27,10 @@ public abstract class Beteiligte {
 
   public String getBemerkung() {
     return bemerkung;
+  }
+
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -42,5 +48,15 @@ public abstract class Beteiligte {
   @Override
   public int hashCode() {
     return Objects.hash(id);
+  }
+
+  @Override
+  public String toString() {
+    return "Beteiligte{" +
+        "id='" + id + '\'' +
+        ", gndid='" + gndid + '\'' +
+        ", bemerkung='" + bemerkung + '\'' +
+        ", name='" + name + '\'' +
+        '}';
   }
 }

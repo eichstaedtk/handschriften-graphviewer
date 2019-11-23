@@ -1,6 +1,9 @@
 package de.eichstaedt.handschriftengraphviewer.infrastructure.xml;
 
 
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.AUTORENSCHAFTEN;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.AUTORENSCHAFTEN_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.AUTORENSCHAFTEN_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGEN;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_SEIT;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2;
@@ -26,6 +29,7 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISATE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISAT_NAME;
 
+import de.eichstaedt.handschriftengraphviewer.domain.Autor;
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
 import de.eichstaedt.handschriftengraphviewer.domain.Buchbinder;
 import de.eichstaedt.handschriftengraphviewer.domain.Digitalisat;
@@ -149,8 +153,7 @@ public class XMLService {
               BESCHREIBUNGS_PERSON_ID).isEmpty()) {
             Person p = new Person(
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME));
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]",""));
 
              vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,p,"","",beschreibungsdokument);
           }
@@ -159,7 +162,7 @@ public class XMLService {
               BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
             Koerperschaft k = new Koerperschaft(
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT));
 
              vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,k,findXMLValueByXPath(vorbesitzerDoc,
@@ -186,8 +189,7 @@ public class XMLService {
               BESCHREIBUNGS_PERSON_ID).isEmpty()) {
             Person p = new Person(
                 findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID),
-                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME),
-                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME));
+                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]",""));
 
             provenienzen.add(new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Hersteller,p,"","",beschreibungsdokument));
           }
@@ -207,7 +209,7 @@ public class XMLService {
               BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
           Buchbinder k = new Buchbinder(
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME),
+              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT));
 
 
@@ -232,21 +234,11 @@ public class XMLService {
 
           addDigitalisate(bestandteilDoc, element);
 
+          addAutorenschaften(bestandteilDoc,element);
+
           NodeList childsT3 = findNodesByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL3);
 
-          for(int n3 = 0; n3 < childsT3.getLength();n3++)
-          {
-            String xmlChild3 = nodeToString(childsT3.item(n3));
-
-            Document child3Doc = prepareDocument(xmlChild3,false);
-
-            DokumentElement child3 = new DokumentElement(findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3),findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3),
-                findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3));
-
-            addDigitalisate(child3Doc, child3);
-
-            element.getBestandteile().add(child3);
-          }
+          addElements(element, childsT3);
 
           beschreibungsdokument.getBestandteile().add(element);
 
@@ -265,8 +257,26 @@ public class XMLService {
 
   }
 
-  private void addDigitalisate(Document bestandteilDoc, DokumentElement element) throws Exception {
-    NodeList digitalisate = findNodesByXPath(bestandteilDoc, DIGITALISATE);
+  private void addElements(DokumentElement element, NodeList childsT3) throws Exception {
+    for(int n3 = 0; n3 < childsT3.getLength();n3++)
+    {
+      String xmlChild3 = nodeToString(childsT3.item(n3));
+
+      Document child3Doc = prepareDocument(xmlChild3,false);
+
+      DokumentElement child3 = new DokumentElement(findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3),findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3),
+          findXMLValueByXPath(child3Doc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3));
+
+      addDigitalisate(child3Doc, child3);
+
+      addAutorenschaften(child3Doc,element);
+
+      element.getBestandteile().add(child3);
+    }
+  }
+
+  private void addDigitalisate(Document doc, DokumentElement element) throws Exception {
+    NodeList digitalisate = findNodesByXPath(doc, DIGITALISATE);
 
     for(int d = 0; d < digitalisate.getLength();d++)
     {
@@ -278,6 +288,22 @@ public class XMLService {
           UUID.randomUUID().toString(),findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME),"http://bilder.manuscripta-mediaevalia.de/thumbnail/"+findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME));
 
       element.getDigitalisate().add(digitalisat);
+    }
+  }
+
+  private void addAutorenschaften(Document doc, DokumentElement element) throws Exception {
+    NodeList autoren = findNodesByXPath(doc, AUTORENSCHAFTEN);
+
+    for(int d = 0; d < autoren.getLength();d++)
+    {
+      String xmlAutoren = nodeToString(autoren.item(d));
+
+      Document autorenDoc = prepareDocument(xmlAutoren,false);
+
+      Autor autor = new Autor(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]",""));
+
+      element.getAutoren().add(autor);
+
     }
   }
 

@@ -25,12 +25,16 @@ public class DokumentElement {
   @Relationship(type = "DIGITAL")
   private Set<Digitalisat> digitalisate;
 
+  @Relationship(type = "AUTOR")
+  private Set<Autor> autoren;
+
   public DokumentElement(String id, String name, String beschreibungsText) {
     this.id = id;
     this.name = name;
     this.beschreibungsText = beschreibungsText;
     this.bestandteile = new HashSet<>();
     this.digitalisate = new HashSet<>();
+    this.autoren = new HashSet<>();
   }
 
   public String getId() {
@@ -51,6 +55,10 @@ public class DokumentElement {
 
   public Set<Digitalisat> getDigitalisate() {
     return digitalisate;
+  }
+
+  public Set<Autor> getAutoren() {
+    return autoren;
   }
 
   @Override
@@ -78,6 +86,7 @@ public class DokumentElement {
         ", beschreibungsText='" + beschreibungsText + '\'' +
         ", bestandteile=" + bestandteile +
         ", digitalisate=" + digitalisate +
+        ", autoren=" + autoren +
         '}';
   }
 }

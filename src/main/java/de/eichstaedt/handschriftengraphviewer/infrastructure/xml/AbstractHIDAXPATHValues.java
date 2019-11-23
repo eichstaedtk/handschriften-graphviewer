@@ -53,6 +53,12 @@ public class AbstractHIDAXPATHValues {
 
   public static final String DIGITALISAT_NAME = "//Field[@Type='8450' and @Value='digitale Reproduktion']/Field[@Type='8540']/@Value";
 
+  public static final String AUTORENSCHAFTEN = "//Field[@Type='bezper' and @Value='Autorschaft']";
+
+  public static final String AUTORENSCHAFTEN_NAME = "//Field[@Type='4100']/@Value";
+
+  public static final String AUTORENSCHAFTEN_ID = "//Field[@Type='z001']/@Value";
+
   public static final String BESCHREIBUNGS_EINBAND = "//Block[@Type=\"t2\"]/Field[@Type='5230' and @Value='Einband']";
 
   public static final String BESCHREIBUNGS_EINBAND_BESCHREIBUNG = "//Block[@Type=\"t2\"]/Field[@Type='5240']/@Value";
