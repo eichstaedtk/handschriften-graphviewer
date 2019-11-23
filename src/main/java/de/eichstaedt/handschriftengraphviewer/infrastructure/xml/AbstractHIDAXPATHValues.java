@@ -33,13 +33,21 @@ public class AbstractHIDAXPATHValues {
 
   public static final String BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG = "//Block[@Type=\"t2\"]/Field[@Type='bezsoz' and @Value='Herstellung']";
 
-  public static final String BESCHREIBUNGS_BESTANDTEILE = "//Block[@Type=\"obj\"]/Block[@Type=\"t2\"]";
+  public static final String BESCHREIBUNGS_BESTANDTEILE_LEVEL2 = "//Block[@Type=\"obj\"]/Block[@Type=\"t2\"]";
 
-  public static final String BESCHREIBUNGS_BESTANDTEILE_ID = "//Block[@Type=\"t2\"]/Field[@Type='5001']/@Value";
+  public static final String BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL2 = "//Block[@Type=\"t2\"]/Field[@Type='5001']/@Value";
 
-  public static final String BESCHREIBUNGS_BESTANDTEILE_NAME = "//Block[@Type=\"t2\"]/Field[@Type='5230']/@Value";
+  public static final String BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL2 = "//Block[@Type=\"t2\"]/Field[@Type='5230']/@Value";
 
-  public static final String BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG = "//Block[@Type=\"t2\"]/Field[@Type='par09']/@Value";
+  public static final String BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2 = "//Block[@Type=\"t2\"]/Field[@Type='par09']/@Value";
+
+  public static final String BESCHREIBUNGS_BESTANDTEILE_LEVEL3 = "//Block[@Type=\"t2\"]/Block[@Type=\"t3\"]";
+
+  public static final String BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='5230']/@Value";
+
+  public static final String BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='5002']/@Value";
+
+  public static final String BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3 = "//Block[@Type=\"t3\"]/Field[@Type='par08']/@Value";
 
   public static final String BESCHREIBUNGS_EINBAND = "//Block[@Type=\"t2\"]/Field[@Type='5230' and @Value='Einband']";
 

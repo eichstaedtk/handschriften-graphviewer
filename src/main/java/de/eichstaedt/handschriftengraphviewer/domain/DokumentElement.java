@@ -1,7 +1,10 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-23.
@@ -16,10 +19,14 @@ public class DokumentElement {
 
   private String beschreibungsText;
 
+  @Relationship(type = "BESTEHT_AUS")
+  private Set<DokumentElement> bestandteile;
+
   public DokumentElement(String id, String name, String beschreibungsText) {
     this.id = id;
     this.name = name;
     this.beschreibungsText = beschreibungsText;
+    this.bestandteile = new HashSet<>();
   }
 
   public String getId() {
@@ -32,6 +39,10 @@ public class DokumentElement {
 
   public String getBeschreibungsText() {
     return beschreibungsText;
+  }
+
+  public Set<DokumentElement> getBestandteile() {
+    return bestandteile;
   }
 
   @Override
@@ -57,6 +68,7 @@ public class DokumentElement {
         "id='" + id + '\'' +
         ", name='" + name + '\'' +
         ", beschreibungsText='" + beschreibungsText + '\'' +
+        ", bestandteile=" + bestandteile +
         '}';
   }
 }

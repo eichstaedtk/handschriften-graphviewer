@@ -25,7 +25,7 @@
     <div class="col-12"><h1>Graphendatenbank der mittelalterlichen Handschriften</h1>
     <div><h3>Cypher query: </h3>
 
-      <textarea rows="6" cols=130 id="cypher">match (b)-[r]->(beschreibung:Beschreibungsdokument) return b,r,beschreibung;</textarea><br>
+      <textarea rows="6" cols=130 id="cypher">match (beschreibung:Beschreibungsdokument)-[r]-(b) return b,r,beschreibung;</textarea><br>
 
       <input class="btn btn-primary" type="submit" value="Anfrage senden" id="reload">
       <input class="btn btn-primary" type="submit" value="Stabilisieren" id="stabilize">
@@ -99,8 +99,8 @@
           "caption": "vonJahr"
         }
       },
-      initial_cypher: "match (b)-[r]->(beschreibung:Beschreibungsdokument) " +
-          "return b,r,beschreibung;"
+      initial_cypher: "match (beschreibung:Beschreibungsdokument)-[r]-(b)\n"
+          + "return b,r,beschreibung;"
     };
 
     viz = new NeoVis.default(config);
