@@ -1,6 +1,11 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import org.neo4j.ogm.annotation.EndNode;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.RelationshipEntity;
@@ -9,8 +14,13 @@ import org.neo4j.ogm.annotation.StartNode;
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
  */
+
+@Entity
 @RelationshipEntity()
 public class Provenienz {
+
+  protected Provenienz() {
+  }
 
   public Provenienz(String id,ProvenienzTyp typ,
       Beteiligte beteiligte, String vonJahr, String bisJahr, Beschreibungsdokument beschreibungsdokument) {
@@ -22,11 +32,14 @@ public class Provenienz {
     this.beschreibungsdokument = beschreibungsdokument;
   }
 
+  @javax.persistence.Id
   @Id
   private String id;
 
+  @Enumerated
   private ProvenienzTyp typ;
 
+  @ManyToOne(fetch = FetchType.EAGER)
   @EndNode
   private Beteiligte beteiligte;
 
@@ -34,6 +47,7 @@ public class Provenienz {
 
   private String bisJahr;
 
+  @OneToOne(fetch = FetchType.EAGER)
   @StartNode
   private Beschreibungsdokument beschreibungsdokument;
 

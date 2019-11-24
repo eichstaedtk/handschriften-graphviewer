@@ -8,8 +8,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -47,7 +47,7 @@ public class Beschreibungsdokument {
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Ort> orte;
 
-  @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+  @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
 

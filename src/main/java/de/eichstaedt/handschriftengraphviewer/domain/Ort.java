@@ -1,5 +1,6 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import java.io.Serializable;
 import javax.persistence.Entity;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -9,7 +10,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 
 @NodeEntity
 @Entity
-public class Ort extends Beteiligte {
+public class Ort extends Beteiligte implements Serializable {
 
   protected Ort() {
   }
@@ -22,5 +23,6 @@ public class Ort extends Beteiligte {
       this.id = name;
     }
 
+    this.name = this.id;
   }
 }

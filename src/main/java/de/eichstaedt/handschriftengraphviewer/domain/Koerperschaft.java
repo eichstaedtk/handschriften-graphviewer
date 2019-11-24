@@ -1,5 +1,10 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import java.io.Serializable;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToOne;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -8,7 +13,11 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 
 @NodeEntity
-public class Koerperschaft extends Beteiligte {
+@Entity
+public class Koerperschaft extends Beteiligte implements Serializable {
+
+  protected Koerperschaft() {
+  }
 
   public Koerperschaft(String id,String name, Ort ort) {
     this.id = id;
@@ -16,6 +25,7 @@ public class Koerperschaft extends Beteiligte {
     Ort = ort;
   }
 
+  @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @Relationship("BEFINDET_SICH_IN")
   private Ort Ort;
 

@@ -1,5 +1,7 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
@@ -10,7 +12,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 
 @Entity
-public class Buchbinder extends Beteiligte {
+public class Buchbinder extends Beteiligte implements Serializable {
 
   protected Buchbinder() {
   }
@@ -21,6 +23,7 @@ public class Buchbinder extends Beteiligte {
     this.ort = ort;
   }
 
+  @Column(insertable = false,updatable = false)
   private String name;
 
   @OneToOne(fetch = FetchType.EAGER)

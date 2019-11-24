@@ -47,7 +47,10 @@ import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.Pr
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.AutorenRDBMSRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.BeschreibungsdokumenteRDBMSRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.DigitalisatRDBMRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.KoerperschaftsRDBMSRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.OrtRDBMSRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.PersonRDBMSRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.ProvenienzRDBMRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -100,13 +103,19 @@ public class XMLService {
       BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository,
       OrtRDBMSRepository ortRDBMSRepository,
       AutorenRDBMSRepository autorenRDBMSRepository,
-      DigitalisatRDBMRepository digitalisatRDBMRepository) {
+      DigitalisatRDBMRepository digitalisatRDBMRepository,
+      ProvenienzRDBMRepository provenienzRDBMRepository,
+      PersonRDBMSRepository personRDBMSRepository,
+      KoerperschaftsRDBMSRepository koerperschaftsRDBMSRepository) {
     this.beschreibungsdokumentGraphRepository = beschreibungsdokumentGraphRepository;
     this.provenienzGraphRepository = provenienzGraphRepository;
     this.beschreibungsdokumenteRDBMSRepository = beschreibungsdokumenteRDBMSRepository;
     this.ortRDBMSRepository = ortRDBMSRepository;
     this.autorenRDBMSRepository = autorenRDBMSRepository;
     this.digitalisatRDBMRepository = digitalisatRDBMRepository;
+    this.provenienzRDBMRepository = provenienzRDBMRepository;
+    this.personRDBMSRepository = personRDBMSRepository;
+    this.koerperschaftsRDBMSRepository = koerperschaftsRDBMSRepository;
   }
 
   private BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository;
@@ -121,6 +130,12 @@ public class XMLService {
 
   private DigitalisatRDBMRepository digitalisatRDBMRepository;
 
+  private ProvenienzRDBMRepository provenienzRDBMRepository;
+
+  private PersonRDBMSRepository personRDBMSRepository;
+
+  private KoerperschaftsRDBMSRepository koerperschaftsRDBMSRepository;
+
   private static final Logger logger = LoggerFactory.getLogger(XMLService.class);
 
   public void   loadingXMLData() {
@@ -134,7 +149,14 @@ public class XMLService {
 
       NodeList beschreibungen = findNodesByXPath(xmlDoc, BESCHREIBUNGEN);
 
-      Koerperschaft bonn = new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn",ortRDBMSRepository.save(new Ort("Bonn")));
+      Koerperschaft bonn;
+
+      if(koerperschaftsRDBMSRepository.findById("Bonn").isPresent())
+      {
+        bonn = koerperschaftsRDBMSRepository.findById("Bonn").get();
+      }else {
+        bonn = koerperschaftsRDBMSRepository.save(new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn",ortRDBMSRepository.save(new Ort("Bonn"))));
+      }
 
       List<Beschreibungsdokument> beschreibungsdokumente = new ArrayList<>();
 
@@ -171,13 +193,20 @@ public class XMLService {
           Document vorbesitzerDoc = prepareDocument(xmlVorbesitzer,false);
 
           Provenienz vp = null;
+          Koerperschaft k;
 
           if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
               BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
-            Koerperschaft k = new Koerperschaft(
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-                ortRDBMSRepository.save(new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT))));
+
+            if(koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).isPresent())
+            {
+              k = koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).get();
+            }else {
+              k = koerperschaftsRDBMSRepository.save(new Koerperschaft(
+                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
+                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
+                  ortRDBMSRepository.save(new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
+            }
 
              vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,k,findXMLValueByXPath(vorbesitzerDoc,
                  BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"",beschreibungsdokument);
@@ -203,10 +232,19 @@ public class XMLService {
           if (findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID) != null
               && !findXMLValueByXPath(vorbesitzerDoc,
               BESCHREIBUNGS_PERSON_ID).isEmpty()) {
-            Person p = new Person(
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
-                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
-                    .replaceAll("[<>]", ""));
+
+            Person p;
+
+            if(personRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID)).isPresent())
+            {
+              p = personRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID)).get();
+            }else {
+              p = personRDBMSRepository.save(new Person(
+                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
+                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
+                      .replaceAll("[<>]", "")));
+            }
+
 
             vp = new Provenienz(UUID.randomUUID().toString(), ProvenienzTyp.Vorbesitzer, p, findXMLValueByXPath(vorbesitzerDoc,
                 BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR), "",
@@ -231,9 +269,18 @@ public class XMLService {
 
           if(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID) != null && !findXMLValueByXPath(herstellungDoc,
               BESCHREIBUNGS_PERSON_ID).isEmpty()) {
-            Person p = new Person(
-                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID),
-                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]",""));
+
+            Person p;
+
+            if(personRDBMSRepository.findById(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID)).isPresent())
+            {
+              p = personRDBMSRepository.findById(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID)).get();
+            }else {
+              p = personRDBMSRepository.save(new Person(
+                  findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID),
+                  findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]","")));
+            }
+
 
             provenienzen.add(new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Hersteller,p,"","",beschreibungsdokument));
           }
@@ -395,6 +442,7 @@ public class XMLService {
           .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
 
         provenienzGraphRepository.saveAll(l);
+        provenienzRDBMRepository.saveAll(l);
 
       });
 
