@@ -45,6 +45,7 @@ import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.BeschreibungsdokumentGraphRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.ProvenienzGraphRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.BeschreibungsdokumenteRDBMSRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.OrtRDBMSRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -74,7 +75,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import org.w3c.dom.Document;
@@ -90,14 +90,15 @@ import org.xml.sax.SAXException;
 @Service
 public class XMLService {
 
-  @Autowired
   public XMLService(
       BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository,
       ProvenienzGraphRepository provenienzGraphRepository,
-      BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository) {
+      BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository,
+      OrtRDBMSRepository ortRDBMSRepository) {
     this.beschreibungsdokumentGraphRepository = beschreibungsdokumentGraphRepository;
     this.provenienzGraphRepository = provenienzGraphRepository;
     this.beschreibungsdokumenteRDBMSRepository = beschreibungsdokumenteRDBMSRepository;
+    this.ortRDBMSRepository = ortRDBMSRepository;
   }
 
   private BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository;
@@ -105,6 +106,8 @@ public class XMLService {
   private ProvenienzGraphRepository provenienzGraphRepository;
 
   private BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository;
+
+  private OrtRDBMSRepository ortRDBMSRepository;
 
   private static final Logger logger = LoggerFactory.getLogger(XMLService.class);
 
@@ -119,7 +122,7 @@ public class XMLService {
 
       NodeList beschreibungen = findNodesByXPath(xmlDoc, BESCHREIBUNGEN);
 
-      Koerperschaft bonn = new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn",new Ort("Bonn"));
+      Koerperschaft bonn = new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn",ortRDBMSRepository.save(new Ort("Bonn")));
 
       List<Beschreibungsdokument> beschreibungsdokumente = new ArrayList<>();
 
@@ -162,7 +165,7 @@ public class XMLService {
             Koerperschaft k = new Koerperschaft(
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
                 findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-                new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)));
+                ortRDBMSRepository.save(new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT))));
 
              vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,k,findXMLValueByXPath(vorbesitzerDoc,
                  BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"",beschreibungsdokument);
@@ -239,7 +242,7 @@ public class XMLService {
           Buchbinder k = new Buchbinder(
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
               findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-              new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)));
+              ortRDBMSRepository.save(new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT))));
 
 
             beschreibungsdokument.setBuchbinder(k);
@@ -282,7 +285,7 @@ public class XMLService {
 
           Node oNode = orte.item(o);
 
-          beschreibungsdokument.getOrte().add(new Ort(oNode.getAttributes().getNamedItem("Value").getTextContent()));
+          beschreibungsdokument.getOrte().add(ortRDBMSRepository.save(new Ort(oNode.getAttributes().getNamedItem("Value").getTextContent())));
         }
 
 

@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.neo4j.ogm.annotation.Id;
@@ -43,13 +44,12 @@ public class Beschreibungsdokument {
 
   private String signatur;
 
-  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @ManyToMany(fetch = FetchType.EAGER)
   private Set<Ort> orte;
 
-  @Transient
+  @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
-
 
   @Transient
   @Relationship(type = "ENTHAELT")
