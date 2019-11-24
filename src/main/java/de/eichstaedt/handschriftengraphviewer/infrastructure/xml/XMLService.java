@@ -42,8 +42,8 @@ import de.eichstaedt.handschriftengraphviewer.domain.Ort;
 import de.eichstaedt.handschriftengraphviewer.domain.Person;
 import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
-import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.BeschreibungsdokumentRepository;
-import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.ProvenienzRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.BeschreibungsdokumentGraphRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.ProvenienzGraphRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -89,20 +89,19 @@ import org.xml.sax.SAXException;
 @Service
 public class XMLService {
 
-
   @Autowired
   public XMLService(
-      BeschreibungsdokumentRepository beschreibungsdokumentRepository,
-      ProvenienzRepository provenienzRepository) {
-    this.beschreibungsdokumentRepository = beschreibungsdokumentRepository;
-    this.provenienzRepository = provenienzRepository;
+      BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository,
+      ProvenienzGraphRepository provenienzGraphRepository) {
+    this.beschreibungsdokumentGraphRepository = beschreibungsdokumentGraphRepository;
+    this.provenienzGraphRepository = provenienzGraphRepository;
   }
 
+  private BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository;
+
+  private ProvenienzGraphRepository provenienzGraphRepository;
+
   private static final Logger logger = LoggerFactory.getLogger(XMLService.class);
-
-  private BeschreibungsdokumentRepository beschreibungsdokumentRepository;
-
-  private ProvenienzRepository provenienzRepository;
 
   public void   loadingXMLData() {
 
@@ -357,28 +356,29 @@ public class XMLService {
   private void saveAll(List<Beschreibungsdokument> beschreibungsdokumente, List<Provenienz> provenienzen) {
     if(!beschreibungsdokumente.isEmpty())
     {
-      beschreibungsdokumentRepository.deleteAll();
-      provenienzRepository.deleteAll();
+      beschreibungsdokumentGraphRepository.deleteAll();
+      provenienzGraphRepository.deleteAll();
 
       final AtomicInteger counter = new AtomicInteger();
 
       beschreibungsdokumente.stream()
           .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
 
-          beschreibungsdokumentRepository.saveAll(l);
+        beschreibungsdokumentGraphRepository.saveAll(l);
 
           });
 
       provenienzen.stream()
           .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
 
-        provenienzRepository.saveAll(l);
+        provenienzGraphRepository.saveAll(l);
 
       });
 
 
     }
   }
+
 
   public static Document prepareDocument(File content, boolean namespaceAware)
       throws IOException, SAXException, ParserConfigurationException {

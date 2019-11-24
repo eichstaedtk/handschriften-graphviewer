@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 
 @SpringBootApplication
-@EnableNeo4jRepositories("de.eichstaedt.handschriftengraphviewer.infrastructure")
+@EnableNeo4jRepositories("de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph")
+@EnableJpaRepositories("de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms")
 @EntityScan(basePackages = "de.eichstaedt.handschriftengraphviewer.domain")
 public class HandschriftenGraphviewerApplication {
 

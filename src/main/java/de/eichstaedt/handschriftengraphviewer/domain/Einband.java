@@ -1,5 +1,7 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -8,6 +10,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
  */
 
 @NodeEntity
+@Entity
+@Table(name = "einband")
 public class Einband {
 
   public Einband(String beschreibung, String befundJahr, String material) {
@@ -16,6 +20,7 @@ public class Einband {
     this.material = material;
   }
 
+  @javax.persistence.Id
   @Id
   private String beschreibung;
 

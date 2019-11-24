@@ -1,6 +1,8 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -9,12 +11,15 @@ import org.neo4j.ogm.annotation.NodeEntity;
  */
 
 @NodeEntity
+@Entity
+@Table(name = "digitalisat")
 public class Digitalisat {
 
   private String id;
 
   private String name;
 
+  @javax.persistence.Id
   @Id
   private String thumbnailURl;
 

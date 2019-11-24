@@ -5,6 +5,7 @@ import org.neo4j.ogm.annotation.Relationship;
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-11.
  */
+
 public class Buchbinder extends Beteiligte {
 
   public Buchbinder(String id,String name,Ort ort) {

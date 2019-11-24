@@ -3,6 +3,8 @@ package de.eichstaedt.handschriftengraphviewer.domain;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -11,6 +13,7 @@ import org.neo4j.ogm.annotation.Relationship;
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
  */
 
+@Entity
 @NodeEntity
 public class Beschreibungsdokument {
 
@@ -22,6 +25,7 @@ public class Beschreibungsdokument {
     this.orte = new HashSet<>();
   }
 
+  @javax.persistence.Id
   @Id
   private String id;
 
@@ -29,11 +33,15 @@ public class Beschreibungsdokument {
 
   private String signatur;
 
+  @Transient
   private Set<Ort> orte;
 
+  @Transient
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
 
+
+  @Transient
   @Relationship(type = "ENTHAELT")
   private Set<DokumentElement> bestandteile;
 

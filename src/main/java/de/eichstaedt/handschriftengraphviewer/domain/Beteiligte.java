@@ -1,13 +1,18 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.util.Objects;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import org.neo4j.ogm.annotation.Id;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
  */
+
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Beteiligte {
 
+  @javax.persistence.Id
   @Id
   String id;
 
