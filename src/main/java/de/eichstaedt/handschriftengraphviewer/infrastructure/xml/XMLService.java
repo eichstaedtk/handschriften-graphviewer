@@ -44,6 +44,7 @@ import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.BeschreibungsdokumentGraphRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.ProvenienzGraphRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.BeschreibungsdokumenteRDBMSRepository;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -92,14 +93,18 @@ public class XMLService {
   @Autowired
   public XMLService(
       BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository,
-      ProvenienzGraphRepository provenienzGraphRepository) {
+      ProvenienzGraphRepository provenienzGraphRepository,
+      BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository) {
     this.beschreibungsdokumentGraphRepository = beschreibungsdokumentGraphRepository;
     this.provenienzGraphRepository = provenienzGraphRepository;
+    this.beschreibungsdokumenteRDBMSRepository = beschreibungsdokumenteRDBMSRepository;
   }
 
   private BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository;
 
   private ProvenienzGraphRepository provenienzGraphRepository;
+
+  private BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository;
 
   private static final Logger logger = LoggerFactory.getLogger(XMLService.class);
 
@@ -359,12 +364,15 @@ public class XMLService {
       beschreibungsdokumentGraphRepository.deleteAll();
       provenienzGraphRepository.deleteAll();
 
+      beschreibungsdokumenteRDBMSRepository.deleteAll();
+
       final AtomicInteger counter = new AtomicInteger();
 
       beschreibungsdokumente.stream()
           .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
 
         beschreibungsdokumentGraphRepository.saveAll(l);
+        beschreibungsdokumenteRDBMSRepository.saveAll(l);
 
           });
 

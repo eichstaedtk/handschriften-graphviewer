@@ -1,5 +1,7 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
@@ -7,7 +9,12 @@ import org.neo4j.ogm.annotation.NodeEntity;
  */
 
 @NodeEntity
+@Entity
+@DiscriminatorValue("Ort")
 public class Ort extends Beteiligte {
+
+  protected Ort() {
+  }
 
   public Ort(String name) {
     if(name == null || name.isEmpty())

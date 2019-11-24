@@ -3,7 +3,12 @@ package de.eichstaedt.handschriftengraphviewer.domain;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -14,8 +19,12 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 
 @Entity
+@Table(name = "beschreibungen")
 @NodeEntity
 public class Beschreibungsdokument {
+
+  protected Beschreibungsdokument() {
+  }
 
   public Beschreibungsdokument(String id, String titel, String signatur) {
     this.id = id;
@@ -29,11 +38,12 @@ public class Beschreibungsdokument {
   @Id
   private String id;
 
+  @Column(length = 4096)
   private String titel;
 
   private String signatur;
 
-  @Transient
+  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   private Set<Ort> orte;
 
   @Transient

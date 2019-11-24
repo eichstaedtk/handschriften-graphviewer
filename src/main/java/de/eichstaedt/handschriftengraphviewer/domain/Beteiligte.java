@@ -1,15 +1,23 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.util.Objects;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 import org.neo4j.ogm.annotation.Id;
 
 /**
  * Created by konrad.eichstaedt@gmx.de on 2019-11-08.
  */
 
+@Entity
+@Table(name = "beteiligte")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="beteiligter_type",
+    discriminatorType = DiscriminatorType.STRING)
 public abstract class Beteiligte {
 
   @javax.persistence.Id
