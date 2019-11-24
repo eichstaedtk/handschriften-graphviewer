@@ -32,9 +32,7 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISATE;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.DIGITALISAT_NAME;
 
-import de.eichstaedt.handschriftengraphviewer.domain.Autor;
 import de.eichstaedt.handschriftengraphviewer.domain.Beschreibungsdokument;
-import de.eichstaedt.handschriftengraphviewer.domain.Buchbinder;
 import de.eichstaedt.handschriftengraphviewer.domain.Digitalisat;
 import de.eichstaedt.handschriftengraphviewer.domain.DokumentElement;
 import de.eichstaedt.handschriftengraphviewer.domain.Koerperschaft;
@@ -44,7 +42,6 @@ import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.BeschreibungsdokumentGraphRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.ProvenienzGraphRepository;
-import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.AutorenRDBMSRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.BeschreibungsdokumenteRDBMSRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.DigitalisatRDBMRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.KoerperschaftsRDBMSRepository;
@@ -102,7 +99,6 @@ public class XMLService {
       ProvenienzGraphRepository provenienzGraphRepository,
       BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository,
       OrtRDBMSRepository ortRDBMSRepository,
-      AutorenRDBMSRepository autorenRDBMSRepository,
       DigitalisatRDBMRepository digitalisatRDBMRepository,
       ProvenienzRDBMRepository provenienzRDBMRepository,
       PersonRDBMSRepository personRDBMSRepository,
@@ -111,7 +107,6 @@ public class XMLService {
     this.provenienzGraphRepository = provenienzGraphRepository;
     this.beschreibungsdokumenteRDBMSRepository = beschreibungsdokumenteRDBMSRepository;
     this.ortRDBMSRepository = ortRDBMSRepository;
-    this.autorenRDBMSRepository = autorenRDBMSRepository;
     this.digitalisatRDBMRepository = digitalisatRDBMRepository;
     this.provenienzRDBMRepository = provenienzRDBMRepository;
     this.personRDBMSRepository = personRDBMSRepository;
@@ -125,8 +120,6 @@ public class XMLService {
   private BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository;
 
   private OrtRDBMSRepository ortRDBMSRepository;
-
-  private AutorenRDBMSRepository autorenRDBMSRepository;
 
   private DigitalisatRDBMRepository digitalisatRDBMRepository;
 
@@ -298,11 +291,18 @@ public class XMLService {
 
           if(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(buchbinderDoc,
               BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
-          Buchbinder k = new Buchbinder(
-              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-              findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-              ortRDBMSRepository.save(new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT))));
 
+            Koerperschaft k;
+
+            if(koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).isPresent())
+            {
+              k = koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).get();
+            }else {
+            k =  koerperschaftsRDBMSRepository.save(new Koerperschaft(
+                  findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
+                  findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
+                  ortRDBMSRepository.save(new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
+            }
 
             beschreibungsdokument.setBuchbinder(k);
         }
@@ -411,8 +411,16 @@ public class XMLService {
       Document autorenDoc = prepareDocument(xmlAutoren,false);
 
       if(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID) != null && !findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID).isEmpty()) {
-        Autor autor = autorenRDBMSRepository.save(new Autor(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),
-            findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]", "")));
+
+        Person autor;
+
+        if(personRDBMSRepository.findById(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID)).isPresent())
+        {
+          autor = personRDBMSRepository.findById(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID)).get();
+        }else {
+          autor = personRDBMSRepository.save(new Person(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),
+              findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]", "")));
+        }
 
         element.getAutoren().add(autor);
       }

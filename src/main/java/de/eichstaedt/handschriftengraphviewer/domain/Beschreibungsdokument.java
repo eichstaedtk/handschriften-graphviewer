@@ -47,7 +47,7 @@ public class Beschreibungsdokument {
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Ort> orte;
 
-  @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
+  @ManyToOne(fetch = FetchType.EAGER)
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
 

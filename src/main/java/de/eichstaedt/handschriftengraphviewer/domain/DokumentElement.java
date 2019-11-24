@@ -45,7 +45,7 @@ public class DokumentElement {
 
   @ManyToMany(fetch = FetchType.EAGER)
   @Relationship(type = "AUTOR")
-  private Set<Autor> autoren;
+  private Set<Person> autoren;
 
   public DokumentElement(String id, String name, String beschreibungsText) {
     this.id = id;
@@ -76,7 +76,7 @@ public class DokumentElement {
     return digitalisate;
   }
 
-  public Set<Autor> getAutoren() {
+  public Set<Person> getAutoren() {
     return autoren;
   }
 
