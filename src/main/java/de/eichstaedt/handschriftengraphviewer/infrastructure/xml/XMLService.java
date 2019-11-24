@@ -44,7 +44,9 @@ import de.eichstaedt.handschriftengraphviewer.domain.Provenienz;
 import de.eichstaedt.handschriftengraphviewer.domain.ProvenienzTyp;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.BeschreibungsdokumentGraphRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.graph.ProvenienzGraphRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.AutorenRDBMSRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.BeschreibungsdokumenteRDBMSRepository;
+import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.DigitalisatRDBMRepository;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms.OrtRDBMSRepository;
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,6 +77,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import org.w3c.dom.Document;
@@ -90,15 +93,20 @@ import org.xml.sax.SAXException;
 @Service
 public class XMLService {
 
+  @Autowired
   public XMLService(
       BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository,
       ProvenienzGraphRepository provenienzGraphRepository,
       BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository,
-      OrtRDBMSRepository ortRDBMSRepository) {
+      OrtRDBMSRepository ortRDBMSRepository,
+      AutorenRDBMSRepository autorenRDBMSRepository,
+      DigitalisatRDBMRepository digitalisatRDBMRepository) {
     this.beschreibungsdokumentGraphRepository = beschreibungsdokumentGraphRepository;
     this.provenienzGraphRepository = provenienzGraphRepository;
     this.beschreibungsdokumenteRDBMSRepository = beschreibungsdokumenteRDBMSRepository;
     this.ortRDBMSRepository = ortRDBMSRepository;
+    this.autorenRDBMSRepository = autorenRDBMSRepository;
+    this.digitalisatRDBMRepository = digitalisatRDBMRepository;
   }
 
   private BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository;
@@ -108,6 +116,10 @@ public class XMLService {
   private BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository;
 
   private OrtRDBMSRepository ortRDBMSRepository;
+
+  private AutorenRDBMSRepository autorenRDBMSRepository;
+
+  private DigitalisatRDBMRepository digitalisatRDBMRepository;
 
   private static final Logger logger = LoggerFactory.getLogger(XMLService.class);
 
@@ -334,8 +346,8 @@ public class XMLService {
 
       Document digitalisatDoc = prepareDocument(xmlDigitalisat,false);
 
-      Digitalisat digitalisat = new Digitalisat(
-          UUID.randomUUID().toString(),findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME),"http://bilder.manuscripta-mediaevalia.de/thumbnail/"+findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME));
+      Digitalisat digitalisat = digitalisatRDBMRepository.save(new Digitalisat(
+          UUID.randomUUID().toString(),findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME),"http://bilder.manuscripta-mediaevalia.de/thumbnail/"+findXMLValueByXPath(digitalisatDoc, DIGITALISAT_NAME)));
 
       element.getDigitalisate().add(digitalisat);
     }
@@ -352,8 +364,8 @@ public class XMLService {
       Document autorenDoc = prepareDocument(xmlAutoren,false);
 
       if(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID) != null && !findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID).isEmpty()) {
-        Autor autor = new Autor(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),
-            findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]", ""));
+        Autor autor = autorenRDBMSRepository.save(new Autor(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),
+            findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]", "")));
 
         element.getAutoren().add(autor);
       }

@@ -3,6 +3,13 @@ package de.eichstaedt.handschriftengraphviewer.domain;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -12,21 +19,31 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 
 @NodeEntity
+@Entity
+@Table(name = "elemente")
 public class DokumentElement {
 
+  protected DokumentElement() {
+  }
+
+  @javax.persistence.Id
   @Id
   private String id;
 
   private String name;
 
+  @Lob
   private String beschreibungsText;
 
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @Relationship(type = "ENTHAELT")
   private Set<DokumentElement> bestandteile;
 
+  @ManyToMany(fetch = FetchType.EAGER)
   @Relationship(type = "DIGITAL")
   private Set<Digitalisat> digitalisate;
 
+  @ManyToMany(fetch = FetchType.EAGER)
   @Relationship(type = "AUTOR")
   private Set<Autor> autoren;
 

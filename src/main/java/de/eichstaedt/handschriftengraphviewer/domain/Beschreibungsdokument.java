@@ -8,9 +8,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -51,7 +51,7 @@ public class Beschreibungsdokument {
   @Relationship(type = "BUCHBINDER")
   private Beteiligte buchbinder;
 
-  @Transient
+  @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
   @Relationship(type = "ENTHAELT")
   private Set<DokumentElement> bestandteile;
 

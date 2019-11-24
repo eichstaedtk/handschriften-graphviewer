@@ -15,6 +15,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @Table(name = "digitalisat")
 public class Digitalisat {
 
+  protected Digitalisat() {
+  }
+
   private String id;
 
   private String name;

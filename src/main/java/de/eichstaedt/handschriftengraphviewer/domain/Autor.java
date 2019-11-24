@@ -1,5 +1,6 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
+import javax.persistence.Entity;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
@@ -7,7 +8,11 @@ import org.neo4j.ogm.annotation.NodeEntity;
  */
 
 @NodeEntity
+@Entity
 public class Autor extends Beteiligte {
+
+  protected Autor() {
+  }
 
   public Autor(String id, String name) {
     this.id = id;
