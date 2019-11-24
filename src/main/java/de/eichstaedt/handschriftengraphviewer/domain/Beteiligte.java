@@ -1,6 +1,7 @@
 package de.eichstaedt.handschriftengraphviewer.domain;
 
 import java.util.Objects;
+import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -16,7 +17,7 @@ import org.neo4j.ogm.annotation.Id;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Beteiligte {
 
-  @javax.persistence.Id
+
   @Id
   String id;
 
@@ -24,7 +25,8 @@ public abstract class Beteiligte {
 
   String bemerkung;
 
-  String name;
+  @javax.persistence.Id
+  String name = UUID.randomUUID().toString();
 
   public String getId() {
     return id;

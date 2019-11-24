@@ -197,7 +197,7 @@ public class XMLService {
             }else {
               k = koerperschaftsRDBMSRepository.save(new Koerperschaft(
                   findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
+                      findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).isEmpty() ? UUID.randomUUID().toString(): findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
                   ortRDBMSRepository.save(new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
             }
 
@@ -235,7 +235,8 @@ public class XMLService {
               p = personRDBMSRepository.save(new Person(
                   findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
                   findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
-                      .replaceAll("[<>]", "")));
+                      .replaceAll("[<>]", "").isEmpty() ? UUID.randomUUID().toString() : findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
+                          .replaceAll("[<>]", "")));
             }
 
 
@@ -271,7 +272,7 @@ public class XMLService {
             }else {
               p = personRDBMSRepository.save(new Person(
                   findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID),
-                  findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]","")));
+                      findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).isEmpty()? UUID.randomUUID().toString(): findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]","")));
             }
 
 
@@ -300,7 +301,7 @@ public class XMLService {
             }else {
             k =  koerperschaftsRDBMSRepository.save(new Koerperschaft(
                   findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-                  findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
+                    findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).isEmpty() ? UUID.randomUUID().toString() : findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
                   ortRDBMSRepository.save(new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
             }
 
@@ -419,7 +420,7 @@ public class XMLService {
           autor = personRDBMSRepository.findById(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID)).get();
         }else {
           autor = personRDBMSRepository.save(new Person(findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_ID),
-              findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]", "")));
+                  findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).isEmpty()? UUID.randomUUID().toString() : findXMLValueByXPath(autorenDoc, AUTORENSCHAFTEN_NAME).replaceAll("[<>]", "")));
         }
 
         element.getAutoren().add(autor);
