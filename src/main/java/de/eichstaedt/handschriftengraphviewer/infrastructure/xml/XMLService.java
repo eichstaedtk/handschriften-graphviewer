@@ -5,6 +5,9 @@ import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.Abstract
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.AUTORENSCHAFTEN_ID;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.AUTORENSCHAFTEN_NAME;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGEN;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_ID;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_NAME;
+import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_ORT;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESITZER_SEIT;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2;
 import static de.eichstaedt.handschriftengraphviewer.infrastructure.xml.AbstractHIDAXPATHValues.BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL3;
@@ -137,226 +140,231 @@ public class XMLService {
 
     try {
 
-      Document xmlDoc = prepareDocument(ResourceUtils.getFile("classpath:Bonn.xml"),false);
-
-
-      NodeList beschreibungen = findNodesByXPath(xmlDoc, BESCHREIBUNGEN);
-
-      Koerperschaft bonn;
-
-      if(koerperschaftsRDBMSRepository.findById("Bonn").isPresent())
-      {
-        bonn = koerperschaftsRDBMSRepository.findById("Bonn").get();
-      }else {
-        bonn = koerperschaftsRDBMSRepository.save(new Koerperschaft("30002387","Universitäts- und Landesbibliothek Bonn",ortRDBMSRepository.save(new Ort("Bonn"))));
-      }
-
       List<Beschreibungsdokument> beschreibungsdokumente = new ArrayList<>();
-
       List<Provenienz> provenienzen = new ArrayList<>();
 
-      for (int i = 0 ; i < beschreibungen.getLength();i++)
-      {
 
-        String xmlBeschreibung = nodeToString(beschreibungen.item(i));
+      Document bonn = prepareDocument(ResourceUtils.getFile("classpath:Bonn.xml"),false);
 
-        Document beschreibungsDoc = prepareDocument(xmlBeschreibung,false);
+      loadBeschreibungenFromDocument(bonn,beschreibungsdokumente,provenienzen);
 
-        logger.info("XML processing for Beschreibung {} ", i);
+      Document dresden = prepareDocument(ResourceUtils.getFile("classpath:Dresden.xml"),false);
 
-        Beschreibungsdokument beschreibungsdokument = new Beschreibungsdokument(findXMLValueByXPath(beschreibungsDoc,
-            BESCHREIBUNGS_ID).replaceAll("[^\\d.]", "")
-            ,findXMLValueByXPath(beschreibungsDoc,BESCHREIBUNGS_TITEL)
-            ,findXMLValueByXPath(beschreibungsDoc,
-            BESCHREIBUNGS_SIGNATURE));
-
-        Provenienz besitzer = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Besitzer,bonn,findXMLValueByXPath(beschreibungsDoc,
-            BESCHREIBUNGS_BESITZER_SEIT),
-            String.valueOf(LocalDate.now().getYear()),beschreibungsdokument);
-
-        provenienzen.add(besitzer);
-
-
-        NodeList vorbesitzerKoerperschaft = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFT);
-
-        for (int v = 0 ; v < vorbesitzerKoerperschaft.getLength();v++)
-        {
-          String xmlVorbesitzer = nodeToString(vorbesitzerKoerperschaft.item(v));
-
-          Document vorbesitzerDoc = prepareDocument(xmlVorbesitzer,false);
-
-          Provenienz vp = null;
-          Koerperschaft k;
-
-          if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
-              BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
-
-            if(koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).isPresent())
-            {
-              k = koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).get();
-            }else {
-              k = koerperschaftsRDBMSRepository.save(new Koerperschaft(
-                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-                      findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).isEmpty() ? UUID.randomUUID().toString(): findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-                  ortRDBMSRepository.save(new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
-            }
-
-             vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,k,findXMLValueByXPath(vorbesitzerDoc,
-                 BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"",beschreibungsdokument);
-          }
-
-
-          if(vp != null)
-          {
-            provenienzen.add(vp);
-          }
-
-        }
-
-        NodeList vorbesitzerPerson = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER_PERSON);
-
-        for (int v = 0 ; v < vorbesitzerPerson.getLength();v++) {
-          String xmlPerson = nodeToString(vorbesitzerPerson.item(v));
-
-          Document vorbesitzerDoc = prepareDocument(xmlPerson, false);
-
-          Provenienz vp = null;
-
-          if (findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID) != null
-              && !findXMLValueByXPath(vorbesitzerDoc,
-              BESCHREIBUNGS_PERSON_ID).isEmpty()) {
-
-            Person p;
-
-            if(personRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID)).isPresent())
-            {
-              p = personRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID)).get();
-            }else {
-              p = personRDBMSRepository.save(new Person(
-                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
-                  findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
-                      .replaceAll("[<>]", "").isEmpty() ? UUID.randomUUID().toString() : findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
-                          .replaceAll("[<>]", "")));
-            }
-
-
-            vp = new Provenienz(UUID.randomUUID().toString(), ProvenienzTyp.Vorbesitzer, p, findXMLValueByXPath(vorbesitzerDoc,
-                BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR), "",
-                beschreibungsdokument);
-          }
-
-          if(vp != null)
-          {
-            provenienzen.add(vp);
-          }
-
-        }
-
-
-        NodeList herstellung = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG);
-
-        for (int h = 0 ; h < herstellung.getLength();h++)
-        {
-          String xmlHerstellung = nodeToString(herstellung.item(h));
-
-          Document herstellungDoc = prepareDocument(xmlHerstellung,false);
-
-          if(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID) != null && !findXMLValueByXPath(herstellungDoc,
-              BESCHREIBUNGS_PERSON_ID).isEmpty()) {
-
-            Person p;
-
-            if(personRDBMSRepository.findById(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID)).isPresent())
-            {
-              p = personRDBMSRepository.findById(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID)).get();
-            }else {
-              p = personRDBMSRepository.save(new Person(
-                  findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID),
-                      findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).isEmpty()? UUID.randomUUID().toString(): findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]","")));
-            }
-
-
-            provenienzen.add(new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Hersteller,p,"","",beschreibungsdokument));
-          }
-        }
-
-
-        Node buchbinder = findNodeByXPath(beschreibungsDoc, BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG);
-
-        if(buchbinder != null)
-        {
-          String xmlbuchbinder = nodeToString(buchbinder);
-
-          Document buchbinderDoc = prepareDocument(xmlbuchbinder,false);
-
-
-          if(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(buchbinderDoc,
-              BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
-
-            Koerperschaft k;
-
-            if(koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).isPresent())
-            {
-              k = koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).get();
-            }else {
-            k =  koerperschaftsRDBMSRepository.save(new Koerperschaft(
-                  findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
-                    findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).isEmpty() ? UUID.randomUUID().toString() : findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
-                  ortRDBMSRepository.save(new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
-            }
-
-            beschreibungsdokument.setBuchbinder(k);
-        }
-
-        }
-
-        NodeList bestandteile = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
-
-        logger.info("Add DokumentenElement {} ", bestandteile.getLength());
-
-        for(int b = 0; b < bestandteile.getLength(); b++)
-        {
-
-          String xmlBestandteil = nodeToString(bestandteile.item(b));
-
-          Document bestandteilDoc = prepareDocument(xmlBestandteil,false);
-
-          DokumentElement element = new DokumentElement(findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL2),findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL2),
-              findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2));
-
-          addDigitalisate(bestandteilDoc, element,BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
-
-          addAutorenschaften(bestandteilDoc,element,BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
-
-          NodeList childsT3 = findNodesByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL3);
-
-          addElements(element, childsT3);
-
-          beschreibungsdokument.getBestandteile().add(element);
-
-          logger.info("Add DokumentenElement {} ", element);
-        }
-
-
-        NodeList orte = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_ORTE);
-
-        for(int o =0;o < orte.getLength();o++)
-        {
-
-          Node oNode = orte.item(o);
-
-          beschreibungsdokument.getOrte().add(ortRDBMSRepository.save(new Ort(oNode.getAttributes().getNamedItem("Value").getTextContent())));
-        }
-
-
-        beschreibungsdokumente.add(beschreibungsdokument);
-
-      }
+      loadBeschreibungenFromDocument(dresden,beschreibungsdokumente,provenienzen);
 
       saveAll(beschreibungsdokumente, provenienzen);
 
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("Error during loading file from resources",e);
+    }
+
+  }
+
+  private void loadBeschreibungenFromDocument(Document xmlDoc,List<Beschreibungsdokument> beschreibungsdokumente,List<Provenienz> provenienzen) throws Exception {
+    NodeList beschreibungen = findNodesByXPath(xmlDoc, BESCHREIBUNGEN);
+
+
+    for (int i = 0 ; i < beschreibungen.getLength();i++)
+    {
+
+      String xmlBeschreibung = nodeToString(beschreibungen.item(i));
+
+      Document beschreibungsDoc = prepareDocument(xmlBeschreibung,false);
+
+      Koerperschaft bestandshaltendeI = koerperschaftsRDBMSRepository.save(new Koerperschaft(findXMLValueByXPath(beschreibungsDoc,
+          BESCHREIBUNGS_BESITZER_ID),findXMLValueByXPath(beschreibungsDoc,
+          BESCHREIBUNGS_BESITZER_NAME),ortRDBMSRepository.save(new Ort(findXMLValueByXPath(beschreibungsDoc,
+          BESCHREIBUNGS_BESITZER_ORT)))));
+
+      logger.info("XML processing for Beschreibung {} ", i);
+
+      Beschreibungsdokument beschreibungsdokument = new Beschreibungsdokument(findXMLValueByXPath(beschreibungsDoc,
+          BESCHREIBUNGS_ID).replaceAll("[^\\d.]", "")
+          ,findXMLValueByXPath(beschreibungsDoc,BESCHREIBUNGS_TITEL)
+          ,findXMLValueByXPath(beschreibungsDoc,
+          BESCHREIBUNGS_SIGNATURE));
+
+      Provenienz besitzer = new Provenienz(UUID.randomUUID().toString(), ProvenienzTyp.Besitzer,bestandshaltendeI,findXMLValueByXPath(beschreibungsDoc,
+          BESCHREIBUNGS_BESITZER_SEIT),
+          String.valueOf(LocalDate.now().getYear()),beschreibungsdokument);
+
+      provenienzen.add(besitzer);
+
+
+      NodeList vorbesitzerKoerperschaft = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER_KOEPERSCHAFT);
+
+      for (int v = 0 ; v < vorbesitzerKoerperschaft.getLength();v++)
+      {
+        String xmlVorbesitzer = nodeToString(vorbesitzerKoerperschaft.item(v));
+
+        Document vorbesitzerDoc = prepareDocument(xmlVorbesitzer,false);
+
+        Provenienz vp = null;
+        Koerperschaft k;
+
+        if(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(vorbesitzerDoc,
+            BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
+
+          if(koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).isPresent())
+          {
+            k = koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).get();
+          }else {
+            k = koerperschaftsRDBMSRepository.save(new Koerperschaft(
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
+                    findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).isEmpty() ? UUID.randomUUID().toString(): findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
+                ortRDBMSRepository.save(new Ort(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
+          }
+
+           vp = new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Vorbesitzer,k,findXMLValueByXPath(vorbesitzerDoc,
+               BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR),"",beschreibungsdokument);
+        }
+
+
+        if(vp != null)
+        {
+          provenienzen.add(vp);
+        }
+
+      }
+
+      NodeList vorbesitzerPerson = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_VORBESITZER_PERSON);
+
+      for (int v = 0 ; v < vorbesitzerPerson.getLength();v++) {
+        String xmlPerson = nodeToString(vorbesitzerPerson.item(v));
+
+        Document vorbesitzerDoc = prepareDocument(xmlPerson, false);
+
+        Provenienz vp = null;
+
+        if (findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID) != null
+            && !findXMLValueByXPath(vorbesitzerDoc,
+            BESCHREIBUNGS_PERSON_ID).isEmpty()) {
+
+          Person p;
+
+          if(personRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID)).isPresent())
+          {
+            p = personRDBMSRepository.findById(findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID)).get();
+          }else {
+            p = personRDBMSRepository.save(new Person(
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_ID),
+                findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
+                    .replaceAll("[<>]", "").isEmpty() ? UUID.randomUUID().toString() : findXMLValueByXPath(vorbesitzerDoc, BESCHREIBUNGS_PERSON_NAME)
+                        .replaceAll("[<>]", "")));
+          }
+
+
+          vp = new Provenienz(UUID.randomUUID().toString(), ProvenienzTyp.Vorbesitzer, p, findXMLValueByXPath(vorbesitzerDoc,
+              BESCHREIBUNGS_KOERPERSCHAFTS_VON_JAHR), "",
+              beschreibungsdokument);
+        }
+
+        if(vp != null)
+        {
+          provenienzen.add(vp);
+        }
+
+      }
+
+
+      NodeList herstellung = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_PROVENIENZ_HERSTELLUNG);
+
+      for (int h = 0 ; h < herstellung.getLength();h++)
+      {
+        String xmlHerstellung = nodeToString(herstellung.item(h));
+
+        Document herstellungDoc = prepareDocument(xmlHerstellung,false);
+
+        if(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID) != null && !findXMLValueByXPath(herstellungDoc,
+            BESCHREIBUNGS_PERSON_ID).isEmpty()) {
+
+          Person p;
+
+          if(personRDBMSRepository.findById(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID)).isPresent())
+          {
+            p = personRDBMSRepository.findById(findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID)).get();
+          }else {
+            p = personRDBMSRepository.save(new Person(
+                findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_ID),
+                    findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).isEmpty()? UUID.randomUUID().toString(): findXMLValueByXPath(herstellungDoc, BESCHREIBUNGS_PERSON_NAME).replaceAll("[<>]","")));
+          }
+
+
+          provenienzen.add(new Provenienz(UUID.randomUUID().toString(),ProvenienzTyp.Hersteller,p,"","",beschreibungsdokument));
+        }
+      }
+
+
+      Node buchbinder = findNodeByXPath(beschreibungsDoc, BESCHREIBUNGS_BUCHBINDER_HERSTELLUNG);
+
+      if(buchbinder != null)
+      {
+        String xmlbuchbinder = nodeToString(buchbinder);
+
+        Document buchbinderDoc = prepareDocument(xmlbuchbinder,false);
+
+
+        if(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID) != null && !findXMLValueByXPath(buchbinderDoc,
+            BESCHREIBUNGS_KOEPERSCHAFTS_ID).isEmpty()) {
+
+          Koerperschaft k;
+
+          if(koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).isPresent())
+          {
+            k = koerperschaftsRDBMSRepository.findById(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID)).get();
+          }else {
+          k =  koerperschaftsRDBMSRepository.save(new Koerperschaft(
+                findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOEPERSCHAFTS_ID),
+                  findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).isEmpty() ? UUID.randomUUID().toString() : findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_NAME).replaceAll("[<>]",""),
+                ortRDBMSRepository.save(new Ort(findXMLValueByXPath(buchbinderDoc, BESCHREIBUNGS_KOERPERSCHAFTS_ORT)))));
+          }
+
+          beschreibungsdokument.setBuchbinder(k);
+      }
+
+      }
+
+      NodeList bestandteile = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
+
+      logger.info("Add DokumentenElement {} ", bestandteile.getLength());
+
+      for(int b = 0; b < bestandteile.getLength(); b++)
+      {
+
+        String xmlBestandteil = nodeToString(bestandteile.item(b));
+
+        Document bestandteilDoc = prepareDocument(xmlBestandteil,false);
+
+        DokumentElement element = new DokumentElement(findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_ID_LEVEL2),findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_NAME_LEVEL2),
+            RTFConvert.convertRTF(findXMLValueByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_BESCHREIBUNG_LEVEL2)));
+
+        addDigitalisate(bestandteilDoc, element,BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
+
+        addAutorenschaften(bestandteilDoc,element,BESCHREIBUNGS_BESTANDTEILE_LEVEL2);
+
+        NodeList childsT3 = findNodesByXPath(bestandteilDoc, BESCHREIBUNGS_BESTANDTEILE_LEVEL3);
+
+        addElements(element, childsT3);
+
+        beschreibungsdokument.getBestandteile().add(element);
+
+        logger.info("Add DokumentenElement {} ", element);
+      }
+
+
+      NodeList orte = findNodesByXPath(beschreibungsDoc, BESCHREIBUNGS_ORTE);
+
+      for(int o =0;o < orte.getLength();o++)
+      {
+
+        Node oNode = orte.item(o);
+
+        beschreibungsdokument.getOrte().add(ortRDBMSRepository.save(new Ort(oNode.getAttributes().getNamedItem("Value").getTextContent())));
+      }
+
+
+      beschreibungsdokumente.add(beschreibungsdokument);
+
     }
 
   }
