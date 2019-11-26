@@ -3,6 +3,7 @@ package de.eichstaedt.handschriftengraphviewer;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.xml.XMLService;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -14,6 +15,9 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 @EnableJpaRepositories("de.eichstaedt.handschriftengraphviewer.infrastructure.repository.rdbms")
 @EntityScan(basePackages = "de.eichstaedt.handschriftengraphviewer.domain")
 public class HandschriftenGraphviewerApplication {
+
+	@Value("${data.loading}")
+	private Boolean dataloading;
 
 	@Autowired
 	public HandschriftenGraphviewerApplication(
@@ -31,7 +35,9 @@ public class HandschriftenGraphviewerApplication {
 	private void createTestDataSetup() {
 
 
-		xmlService.loadingXMLData();
+		if(dataloading) {
+			xmlService.loadingXMLData();
+		}
 
 
 	}
