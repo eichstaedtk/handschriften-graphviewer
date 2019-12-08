@@ -116,11 +116,13 @@ public class XMLService {
     this.koerperschaftsRDBMSRepository = koerperschaftsRDBMSRepository;
   }
 
+  @Autowired
   private BeschreibungsdokumentGraphRepository beschreibungsdokumentGraphRepository;
 
-  private ProvenienzGraphRepository provenienzGraphRepository;
-
+  @Autowired
   private BeschreibungsdokumenteRDBMSRepository beschreibungsdokumenteRDBMSRepository;
+
+  private ProvenienzGraphRepository provenienzGraphRepository;
 
   private OrtRDBMSRepository ortRDBMSRepository;
 
