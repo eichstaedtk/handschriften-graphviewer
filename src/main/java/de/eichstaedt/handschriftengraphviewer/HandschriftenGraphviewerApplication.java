@@ -1,5 +1,6 @@
 package de.eichstaedt.handschriftengraphviewer;
 
+import de.eichstaedt.handschriftengraphviewer.domain.service.TestingService;
 import de.eichstaedt.handschriftengraphviewer.infrastructure.xml.XMLService;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,14 @@ public class HandschriftenGraphviewerApplication {
 
 	@Autowired
 	public HandschriftenGraphviewerApplication(
-			XMLService xmlService) {
+			XMLService xmlService, TestingService testingService) {
 		this.xmlService = xmlService;
+		this.testingService = testingService;
 	}
 
 	private XMLService xmlService;
+
+	private TestingService testingService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(HandschriftenGraphviewerApplication.class, args);
@@ -39,6 +43,8 @@ public class HandschriftenGraphviewerApplication {
 			xmlService.loadingXMLData();
 		}
 
+
+		testingService.createTestDataSet(9628);
 
 	}
 
