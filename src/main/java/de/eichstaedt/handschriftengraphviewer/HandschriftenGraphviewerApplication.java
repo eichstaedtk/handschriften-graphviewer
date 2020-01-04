@@ -44,7 +44,7 @@ public class HandschriftenGraphviewerApplication {
 		}
 
 
-		testingService.createTestDataSet(9628);
+		testingService.createTestDataSet(9628,5);
 
 	}
 

@@ -63,7 +63,7 @@ public class TestingService {
         return result;
     }
 
-    public void createTestDataSet(int number) {
+    public void createTestDataSet(int number, int depth) {
 
 
         List<Beschreibungsdokument> testDokumente = new ArrayList<>();
@@ -76,6 +76,9 @@ public class TestingService {
             IntStream.range(1,11).forEach(i -> {
                 DokumentElement element = new DokumentElement(uuid+'-'+i,"Element "+i,"Beschreibungstext");
                 beschreibungsdokument.getBestandteile().add(element);
+
+                addChild(element,5,0);
+
             });
 
             testDokumente.add(beschreibungsdokument);
@@ -91,5 +94,20 @@ public class TestingService {
         beschreibungsdokumentGraphRepository.saveAll(testDokumente);
 
         logger.info("Save synthetic testdata to GRAPH DB");
+    }
+
+    private DokumentElement addChild(DokumentElement element, int d, int counter) {
+
+        DokumentElement child = new DokumentElement(UUID.randomUUID().toString() + '-' + d,
+            "Child " + d, "Beschreibungstext");
+        element.getBestandteile().add(child);
+        counter++;
+
+        while (counter < d)
+        {
+            addChild(child,d,counter);
+        }
+
+        return child;
     }
 }
