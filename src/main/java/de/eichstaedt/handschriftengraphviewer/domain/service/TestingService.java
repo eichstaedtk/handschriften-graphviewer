@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -73,11 +74,11 @@ public class TestingService {
 
             Beschreibungsdokument beschreibungsdokument = new Beschreibungsdokument(uuid,"TestBeschreibung "+uuid,"TestSignatur "+uuid);
 
-            IntStream.range(1,11).forEach(i -> {
+            IntStream.range(1,10).forEach(i -> {
                 DokumentElement element = new DokumentElement(uuid+'-'+i,"Element "+i,"Beschreibungstext");
                 beschreibungsdokument.getBestandteile().add(element);
 
-                addChild(element,5,0);
+                addChild(element,depth,0);
 
             });
 
@@ -87,23 +88,34 @@ public class TestingService {
 
         logger.info("Save synthetic testdata of size {} ", testDokumente.size());
 
-        rdbmsRepository.saveAll(testDokumente);
+        final AtomicInteger counter = new AtomicInteger();
 
-        logger.info("Save synthetic testdata to RDBMS");
+        testDokumente.stream()
+            .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
 
-        beschreibungsdokumentGraphRepository.saveAll(testDokumente);
+            beschreibungsdokumentGraphRepository.saveAll(l);
 
-        logger.info("Save synthetic testdata to GRAPH DB");
+            logger.info("Saved graph number of entities {} {} ",counter,l.size());
+
+            rdbmsRepository.saveAll(l);
+
+            logger.info("Saved rdbms number of entities {} {} ",counter,l.size());
+        });
+
+        logger.info("Saved synthetic testdata to GRAPH DB and RDBMS");
     }
 
     private DokumentElement addChild(DokumentElement element, int d, int counter) {
 
-        DokumentElement child = new DokumentElement(UUID.randomUUID().toString() + '-' + d,
-            "Child " + d, "Beschreibungstext");
+        DokumentElement child = new DokumentElement(UUID.randomUUID().toString() + '-' + counter,
+            "Child " + counter, "Beschreibungstext");
         element.getBestandteile().add(child);
+
+        logger.debug("Add DokumentElement {} with counter {} ",child,counter);
+
         counter++;
 
-        while (counter < d)
+        if (counter <= d)
         {
             addChild(child,d,counter);
         }

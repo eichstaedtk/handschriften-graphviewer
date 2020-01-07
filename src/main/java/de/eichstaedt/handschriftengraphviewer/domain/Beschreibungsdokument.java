@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.Index;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -35,6 +36,7 @@ public class Beschreibungsdokument {
     this.orte = new HashSet<>();
   }
 
+  @Index
   @javax.persistence.Id
   @Id
   private String id;
