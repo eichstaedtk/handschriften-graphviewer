@@ -82,6 +82,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -136,6 +137,7 @@ public class XMLService {
 
   private static final Logger logger = LoggerFactory.getLogger(XMLService.class);
 
+  @Transactional(readOnly = true)
   public void   loadingXMLData() {
 
     logger.info("Start loading data from xml file ...");
@@ -439,7 +441,8 @@ public class XMLService {
     }
   }
 
-  private void saveAll(List<Beschreibungsdokument> beschreibungsdokumente, List<Provenienz> provenienzen) {
+  @Transactional(readOnly = true)
+  void saveAll(List<Beschreibungsdokument> beschreibungsdokumente, List<Provenienz> provenienzen) {
     if(!beschreibungsdokumente.isEmpty())
     {
       beschreibungsdokumentGraphRepository.deleteAll();

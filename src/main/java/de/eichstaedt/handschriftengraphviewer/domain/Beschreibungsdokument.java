@@ -21,7 +21,7 @@ import org.neo4j.ogm.annotation.Relationship;
  */
 
 @Entity
-@Table(name = "beschreibungen")
+@Table(name = "beschreibungen", indexes = { @javax.persistence.Index(name = "BESCHREIBUNGGS_INDEX", columnList = "id") })
 @NodeEntity
 public class Beschreibungsdokument {
 

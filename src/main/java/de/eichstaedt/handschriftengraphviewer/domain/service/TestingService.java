@@ -91,7 +91,7 @@ public class TestingService {
         final AtomicInteger counter = new AtomicInteger();
 
         testDokumente.stream()
-            .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 20)).values().forEach(l -> {
+            .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / 50)).values().forEach(l -> {
 
             beschreibungsdokumentGraphRepository.saveAll(l);
 

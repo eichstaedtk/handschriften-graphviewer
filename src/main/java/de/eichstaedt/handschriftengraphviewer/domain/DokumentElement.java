@@ -21,8 +21,8 @@ import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity
 @Entity
-@Table(name = "elemente")
-public class DokumentElement {
+@Table(name = "elemente",indexes = { @javax.persistence.Index(name = "ELEMENTE_INDEX", columnList = "id") })
+public class  DokumentElement {
 
   protected DokumentElement() {
   }
